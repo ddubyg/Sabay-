@@ -1,0 +1,415 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #6c5ce7;
+    --primary-light: #8b7cf6;
+    --primary-dark: #5545d0;
+
+    --text: #171725;
+    --muted: #77778a;
+
+    --border: #e8e8f0;
+    --background: #f8f8fc;
+}
+
+body {
+    min-height: 100vh;
+
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+
+    background: var(--background);
+
+    color: var(--text);
+}
+
+
+/* ========================================
+   NAVBAR
+======================================== */
+
+.navbar {
+    height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 7%;
+
+    background: rgba(255, 255, 255, 0.92);
+
+    border-bottom: 1px solid var(--border);
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    backdrop-filter: blur(14px);
+}
+
+
+/* BRAND */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    text-decoration: none;
+
+    color: var(--text);
+}
+
+.brand-icon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-light),
+        var(--primary-dark)
+    );
+
+    box-shadow:
+        0 7px 18px rgba(108, 92, 231, 0.22);
+}
+
+.brand-icon span {
+    color: white;
+
+    font-size: 18px;
+
+    font-weight: 800;
+}
+
+.brand-name {
+    font-size: 21px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.7px;
+}
+
+
+/* NAV LINKS */
+
+.nav-links {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.nav-links a {
+    padding: 9px 13px;
+
+    border-radius: 9px;
+
+    color: #666678;
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+.nav-links a:hover {
+    color: var(--primary);
+
+    background: #f1efff;
+}
+
+.nav-links .active {
+    color: var(--primary);
+
+    background: #f1efff;
+}
+
+.nav-links .logout {
+    color: #d45a5a;
+}
+
+.nav-links .logout:hover {
+    color: #c43e3e;
+
+    background: #fff1f1;
+}
+
+
+/* ========================================
+   MAIN
+======================================== */
+
+.settings-container {
+    width: min(850px, 90%);
+
+    margin: 0 auto;
+
+    padding: 60px 0 80px;
+}
+
+
+/* ========================================
+   HEADER
+======================================== */
+
+.settings-header {
+    margin-bottom: 30px;
+}
+
+.settings-header h1 {
+    font-size: 34px;
+
+    line-height: 1.2;
+
+    letter-spacing: -1.4px;
+
+    font-weight: 800;
+
+    margin-bottom: 8px;
+}
+
+.settings-header p {
+    color: var(--muted);
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   SETTINGS CARD
+======================================== */
+
+.settings-card {
+    overflow: hidden;
+
+    border: 1px solid var(--border);
+
+    border-radius: 18px;
+
+    background: white;
+
+    box-shadow:
+        0 10px 30px rgba(30, 25, 80, 0.04);
+}
+
+
+/* ========================================
+   SETTING ROW
+======================================== */
+
+.setting {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 30px;
+
+    padding: 24px 25px;
+
+    border-bottom: 1px solid #f0f0f4;
+}
+
+.setting:last-child {
+    border-bottom: none;
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-title {
+    margin-bottom: 5px;
+
+    color: #30303e;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+.setting-description {
+    color: var(--muted);
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   TOGGLE
+======================================== */
+
+.toggle {
+    position: relative;
+
+    width: 48px;
+    height: 27px;
+
+    flex-shrink: 0;
+}
+
+.toggle input {
+    opacity: 0;
+
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+
+    inset: 0;
+
+    cursor: pointer;
+
+    border-radius: 999px;
+
+    background: #dcdce5;
+
+    transition: 0.25s ease;
+}
+
+.slider::before {
+    content: "";
+
+    position: absolute;
+
+    width: 21px;
+    height: 21px;
+
+    left: 3px;
+    top: 3px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.15);
+
+    transition: 0.25s ease;
+}
+
+.toggle input:checked + .slider {
+    background: linear-gradient(
+        135deg,
+        var(--primary-light),
+        var(--primary-dark)
+    );
+}
+
+.toggle input:checked + .slider::before {
+    transform: translateX(21px);
+}
+
+
+/* ========================================
+   SAVE BUTTON
+======================================== */
+
+.save-button {
+    width: 100%;
+
+    height: 50px;
+
+    margin-top: 22px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-light),
+        var(--primary-dark)
+    );
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(108, 92, 231, 0.20);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.save-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 26px rgba(108, 92, 231, 0.28);
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 600px) {
+
+    .navbar {
+        padding: 0 5%;
+    }
+
+    .brand-name {
+        display: none;
+    }
+
+    .nav-links {
+        gap: 2px;
+    }
+
+    .nav-links a {
+        padding: 8px;
+
+        font-size: 11px;
+    }
+
+    .settings-container {
+        width: 92%;
+
+        padding-top: 35px;
+    }
+
+    .settings-header h1 {
+        font-size: 28px;
+    }
+
+    .setting {
+        padding: 21px;
+
+        gap: 20px;
+    }
+}

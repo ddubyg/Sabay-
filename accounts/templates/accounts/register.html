@@ -1,0 +1,190 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | Sabay?</title>
+
+    <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+</head>
+
+<body>
+
+<div class="auth-page">
+
+    <!-- LEFT SIDE -->
+
+    <section class="auth-visual">
+
+        <div class="visual-content">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    <span>S</span>
+                </div>
+
+                <div class="brand-name">
+                    Sabay?
+                </div>
+
+            </div>
+
+            <h1>
+                Find someone<br>
+                to do it <span>with.</span>
+            </h1>
+
+            <p>
+                Whether you're studying, playing sports,
+                grabbing food, or just looking for someone
+                to hang out with, there's always someone
+                willing to go sabay.
+            </p>
+
+            <div class="features">
+
+                <div class="feature">
+                    <span class="feature-dot"></span>
+                    Study together
+                </div>
+
+                <div class="feature">
+                    <span class="feature-dot"></span>
+                    Play together
+                </div>
+
+                <div class="feature">
+                    <span class="feature-dot"></span>
+                    Eat together
+                </div>
+
+                <div class="feature">
+                    <span class="feature-dot"></span>
+                    Go together
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RIGHT SIDE -->
+
+    <section class="auth-form-section">
+
+        <div class="auth-card">
+
+            <div class="auth-header">
+
+                <h2>
+                    Welcome back
+                </h2>
+
+                <p>
+                    Log in to continue finding people to do things with.
+                </p>
+
+            </div>
+
+
+            {% if error %}
+
+                <div class="error">
+                    {{ error }}
+                </div>
+
+            {% endif %}
+
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Username
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            @
+                        </span>
+
+                        <input
+                            class="form-input"
+                            type="text"
+                            name="username"
+                            placeholder="Enter your username"
+                            autocomplete="username"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            •
+                        </span>
+
+                        <input
+                            class="form-input"
+                            type="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="auth-button"
+                    type="submit"
+                >
+                    Log in
+                </button>
+
+            </form>
+
+
+            <div class="auth-footer">
+
+                Don't have an account?
+
+                <a href="{% url 'register' %}">
+                    Create one
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+</body>
+</html>

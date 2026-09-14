@@ -1,0 +1,189 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Settings | Sabay?</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'settings_app/css/settings.css' %}"
+    >
+
+</head>
+
+<body>
+
+
+<!-- ========================================
+     NAVBAR
+======================================== -->
+
+<nav class="navbar">
+
+    <a
+        href="{% url 'home' %}"
+        class="brand"
+    >
+
+        <div class="brand-icon">
+            <span>S</span>
+        </div>
+
+        <div class="brand-name">
+            Sabay?
+        </div>
+
+    </a>
+
+
+    <div class="nav-links">
+
+        <a href="{% url 'home' %}">
+            Home
+        </a>
+
+        <a href="{% url 'profile' %}">
+            Profile
+        </a>
+
+        <a
+            href="{% url 'settings' %}"
+            class="active"
+        >
+            Settings
+        </a>
+
+        <a
+            href="{% url 'logout' %}"
+            class="logout"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- ========================================
+     SETTINGS
+======================================== -->
+
+<main class="settings-container">
+
+
+    <div class="settings-header">
+
+        <h1>
+            Settings
+        </h1>
+
+        <p>
+            Manage your Sabay? preferences.
+        </p>
+
+    </div>
+
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+
+        <section class="settings-card">
+
+
+            <!-- NOTIFICATIONS -->
+
+            <div class="setting">
+
+                <div class="setting-info">
+
+                    <div class="setting-title">
+                        Notifications
+                    </div>
+
+                    <div class="setting-description">
+                        Get notified about activities, requests,
+                        and other updates.
+                    </div>
+
+                </div>
+
+
+                <label class="toggle">
+
+                    <input
+                        type="checkbox"
+                        name="notifications"
+                        {% if settings.notifications %}checked{% endif %}
+                    >
+
+                    <span class="slider"></span>
+
+                </label>
+
+            </div>
+
+
+            <!-- DARK MODE -->
+
+            <div class="setting">
+
+                <div class="setting-info">
+
+                    <div class="setting-title">
+                        Dark Mode
+                    </div>
+
+                    <div class="setting-description">
+                        Use a darker appearance throughout Sabay?.
+                    </div>
+
+                </div>
+
+
+                <label class="toggle">
+
+                    <input
+                        type="checkbox"
+                        name="dark_mode"
+                        {% if settings.dark_mode %}checked{% endif %}
+                    >
+
+                    <span class="slider"></span>
+
+                </label>
+
+            </div>
+
+
+        </section>
+
+
+        <button
+            type="submit"
+            class="save-button"
+        >
+            Save Settings
+        </button>
+
+
+    </form>
+
+
+</main>
+
+</body>
+
+</html>

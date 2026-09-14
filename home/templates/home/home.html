@@ -1,0 +1,295 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Home | Sabay?</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'home/css/home.css' %}"
+    >
+
+</head>
+
+<body>
+
+
+<!-- ========================================
+     NAVBAR
+======================================== -->
+
+<nav class="navbar">
+
+    <a
+        href="{% url 'home' %}"
+        class="brand"
+    >
+
+        <div class="brand-icon">
+            <span>S</span>
+        </div>
+
+        <div class="brand-name">
+            Sabay?
+        </div>
+
+    </a>
+
+
+    <div class="nav-links">
+
+        <a href="{% url 'home' %}">
+            Home
+        </a>
+
+        <a href="{% url 'profile' %}">
+            Profile
+        </a>
+
+        <a href="{% url 'settings' %}">
+            Settings
+        </a>
+
+        <a
+            href="{% url 'logout' %}"
+            class="logout"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- ========================================
+     MAIN
+======================================== -->
+
+<main class="home-container">
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <h1>
+                Find someone<br>
+                to do it <span>with.</span>
+            </h1>
+
+            <p>
+                Welcome, {{ user.username }}.
+                Discover people who are looking for
+                someone to study, play, eat, travel,
+                or simply hang out with.
+            </p>
+
+
+            <div class="search-box">
+
+                <span class="search-icon">
+                    ⌕
+                </span>
+
+                <input
+                    type="text"
+                    placeholder="Search activities..."
+                >
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CATEGORIES -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    Explore by category
+                </h2>
+
+                <p>
+                    Find something that matches your vibe.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="categories">
+
+            <button class="category active">
+                All
+            </button>
+
+            <button class="category">
+                Study
+            </button>
+
+            <button class="category">
+                Sports
+            </button>
+
+            <button class="category">
+                Gaming
+            </button>
+
+            <button class="category">
+                Food
+            </button>
+
+            <button class="category">
+                Commute
+            </button>
+
+            <button class="category">
+                Hangout
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- ACTIVITIES -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    Upcoming activities
+                </h2>
+
+                <p>
+                    See what people are doing soon.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="activities">
+
+
+            <!-- ACTIVITY 1 -->
+
+            <div class="activity">
+
+                <div class="activity-top">
+
+                    <span class="activity-category">
+                        Study
+                    </span>
+
+                </div>
+
+                <h3>
+                    Study at Library
+                </h3>
+
+                <div class="activity-info">
+
+                    <span>
+                        ◷ Today
+                    </span>
+
+                    <span>
+                        ◉ 3 participants
+                    </span>
+
+                    <span>
+                        ◈ CIT-U Library
+                    </span>
+
+                </div>
+
+                <button
+                    class="activity-button"
+                    onclick="showMessage('Study at Library')"
+                >
+                    View Activity
+                </button>
+
+            </div>
+
+
+            <!-- ACTIVITY 2 -->
+
+            <div class="activity">
+
+                <div class="activity-top">
+
+                    <span class="activity-category">
+                        Sports
+                    </span>
+
+                </div>
+
+                <h3>
+                    Basketball
+                </h3>
+
+                <div class="activity-info">
+
+                    <span>
+                        ◷ Tomorrow
+                    </span>
+
+                    <span>
+                        ◉ 5 participants
+                    </span>
+
+                    <span>
+                        ◈ Campus Court
+                    </span>
+
+                </div>
+
+                <button
+                    class="activity-button"
+                    onclick="showMessage('Basketball')"
+                >
+                    View Activity
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<script src="{% static 'home/js/home.js' %}"></script>
+
+</body>
+
+</html>

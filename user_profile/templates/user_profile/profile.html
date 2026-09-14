@@ -1,0 +1,212 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Profile | Sabay?</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'user_profile/css/profile.css' %}"
+    >
+
+</head>
+
+<body>
+
+
+<nav class="navbar">
+
+    <a
+        href="{% url 'home' %}"
+        class="brand"
+    >
+
+        <div class="brand-icon">
+            <span>S</span>
+        </div>
+
+        <div class="brand-name">
+            Sabay?
+        </div>
+
+    </a>
+
+
+    <div class="nav-links">
+
+        <a href="{% url 'home' %}">
+            Home
+        </a>
+
+        <a href="{% url 'profile' %}">
+            Profile
+        </a>
+
+        <a href="{% url 'settings' %}">
+            Settings
+        </a>
+
+        <a
+            href="{% url 'logout' %}"
+            class="logout"
+        >
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<main class="profile-container">
+
+
+    <!-- PROFILE HEADER -->
+
+    <section class="profile-card">
+
+        <div class="profile-content">
+
+            <div class="avatar">
+                {{ user.username|first|upper }}
+            </div>
+
+            <div class="profile-info">
+
+                <h1>
+                    {{ user.username }}
+                </h1>
+
+                <p>
+                    Sabay? member
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- PROFILE CONTENT -->
+
+    <div class="profile-grid">
+
+
+        <!-- ABOUT -->
+
+        <section class="card">
+
+            <h2>
+                About you
+            </h2>
+
+            <p class="card-description">
+                Your basic account information.
+            </p>
+
+
+            <div class="detail">
+
+                <div class="detail-label">
+                    Username
+                </div>
+
+                <div class="detail-value">
+                    {{ user.username }}
+                </div>
+
+            </div>
+
+
+            <div class="detail">
+
+                <div class="detail-label">
+                    Email
+                </div>
+
+                <div class="detail-value">
+                    {{ user.email|default:"Not provided" }}
+                </div>
+
+            </div>
+
+
+            <div class="detail">
+
+                <div class="detail-label">
+                    Member since
+                </div>
+
+                <div class="detail-value">
+                    {{ user.date_joined|date:"F Y" }}
+                </div>
+
+            </div>
+
+
+            <button class="profile-button">
+                Edit Profile
+            </button>
+
+        </section>
+
+
+        <!-- INTERESTS -->
+
+        <section class="card">
+
+            <h2>
+                Interests
+            </h2>
+
+            <p class="card-description">
+                Things you might want to do with other people.
+            </p>
+
+
+            <div class="interests">
+
+                <span class="interest">
+                    Study
+                </span>
+
+                <span class="interest">
+                    Sports
+                </span>
+
+                <span class="interest">
+                    Gaming
+                </span>
+
+                <span class="interest">
+                    Food
+                </span>
+
+                <span class="interest">
+                    Hangout
+                </span>
+
+            </div>
+
+        </section>
+
+
+    </div>
+
+
+</main>
+
+</body>
+
+</html>

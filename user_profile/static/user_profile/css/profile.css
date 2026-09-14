@@ -1,0 +1,439 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #6c5ce7;
+    --primary-light: #8b7cf6;
+    --primary-dark: #5545d0;
+    --text: #171725;
+    --muted: #77778a;
+    --border: #e8e8f0;
+    --background: #f8f8fc;
+}
+
+body {
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+
+/* ========================================
+   NAVBAR
+======================================== */
+
+.navbar {
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 7%;
+
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid var(--border);
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    backdrop-filter: blur(14px);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    text-decoration: none;
+    color: var(--text);
+}
+
+.brand-icon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-light),
+        var(--primary-dark)
+    );
+
+    box-shadow: 0 7px 18px rgba(108, 92, 231, 0.22);
+}
+
+.brand-icon span {
+    color: white;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.brand-name {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.7px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-links a {
+    padding: 9px 13px;
+
+    border-radius: 9px;
+
+    color: #666678;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+.nav-links a:hover {
+    color: var(--primary);
+    background: #f1efff;
+}
+
+.nav-links .logout {
+    color: #d45a5a;
+}
+
+.nav-links .logout:hover {
+    color: #c43e3e;
+    background: #fff1f1;
+}
+
+
+/* ========================================
+   PAGE
+======================================== */
+
+.profile-container {
+    width: min(1000px, 90%);
+
+    margin: 0 auto;
+
+    padding: 55px 0 80px;
+}
+
+
+/* ========================================
+   PROFILE HEADER
+======================================== */
+
+.profile-card {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 42px;
+
+    border-radius: 22px;
+
+    background:
+        radial-gradient(
+            circle at 90% 10%,
+            rgba(139, 124, 246, 0.25),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #111122,
+            #211c4a
+        );
+
+    color: white;
+
+    box-shadow:
+        0 20px 45px rgba(25, 20, 70, 0.14);
+}
+
+.profile-card::before {
+    content: "";
+
+    position: absolute;
+
+    width: 360px;
+    height: 360px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(255, 255, 255, 0.07);
+
+    right: -160px;
+    top: -190px;
+}
+
+.profile-content {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.avatar {
+    width: 92px;
+    height: 92px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 25px;
+
+    background: linear-gradient(
+        135deg,
+        #a99fff,
+        #6252dd
+    );
+
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.2);
+
+    font-size: 34px;
+    font-weight: 800;
+}
+
+.profile-info h1 {
+    font-size: 30px;
+
+    letter-spacing: -1px;
+
+    margin-bottom: 7px;
+}
+
+.profile-info p {
+    color: rgba(255, 255, 255, 0.62);
+
+    font-size: 14px;
+}
+
+
+/* ========================================
+   CONTENT GRID
+======================================== */
+
+.profile-grid {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 20px;
+
+    margin-top: 25px;
+}
+
+
+/* ========================================
+   CARDS
+======================================== */
+
+.card {
+    padding: 27px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+
+    background: white;
+}
+
+.card h2 {
+    margin-bottom: 6px;
+
+    font-size: 18px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.5px;
+}
+
+.card-description {
+    margin-bottom: 22px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   PROFILE DETAILS
+======================================== */
+
+.detail {
+    padding: 14px 0;
+
+    border-bottom: 1px solid #f0f0f4;
+}
+
+.detail:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    margin-bottom: 5px;
+
+    color: #9999aa;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    color: #30303e;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+/* ========================================
+   INTERESTS
+======================================== */
+
+.interests {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 9px;
+}
+
+.interest {
+    padding: 9px 13px;
+
+    border-radius: 999px;
+
+    background: #f1efff;
+
+    color: var(--primary);
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+/* ========================================
+   BUTTON
+======================================== */
+
+.profile-button {
+    width: 100%;
+
+    height: 46px;
+
+    margin-top: 20px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary-light),
+        var(--primary-dark)
+    );
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 18px rgba(108, 92, 231, 0.18);
+
+    transition: 0.2s ease;
+}
+
+.profile-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px rgba(108, 92, 231, 0.25);
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 700px) {
+
+    .navbar {
+        padding: 0 5%;
+    }
+
+    .profile-container {
+        width: 92%;
+        padding-top: 35px;
+    }
+
+    .profile-card {
+        padding: 30px;
+    }
+
+    .profile-content {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+
+    .brand-name {
+        display: none;
+    }
+
+    .nav-links {
+        gap: 2px;
+    }
+
+    .nav-links a {
+        padding: 8px;
+        font-size: 11px;
+    }
+
+    .profile-info h1 {
+        font-size: 25px;
+    }
+}
