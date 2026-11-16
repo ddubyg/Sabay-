@@ -16,17 +16,34 @@
 
     --border: #e8e8f0;
     --background: #f8f8fc;
+    --card: #ffffff;
+    --card-shadow: 0 10px 30px rgba(30, 25, 80, 0.04);
+    --navbar-bg: rgba(255, 255, 255, 0.92);
+    --divider: #f0f0f4;
+    --slider-bg: #dcdce5;
+}
+
+:root[data-theme="dark"],
+html.dark-mode,
+body.dark-mode {
+    --text: #f1f1fa;
+    --muted: #9594aa;
+
+    --border: #27253d;
+    --background: #0d0d18;
+    --card: #151526;
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    --navbar-bg: rgba(13, 13, 24, 0.94);
+    --divider: #201e33;
+    --slider-bg: #2d2b45;
 }
 
 body {
     min-height: 100vh;
-
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
-
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: var(--background);
-
     color: var(--text);
+    transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 
@@ -36,15 +53,12 @@ body {
 
 .navbar {
     height: 76px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding: 0 7%;
 
-    background: rgba(255, 255, 255, 0.92);
-
+    background: var(--navbar-bg);
     border-bottom: 1px solid var(--border);
 
     position: sticky;
@@ -52,94 +66,65 @@ body {
     z-index: 10;
 
     backdrop-filter: blur(14px);
+    transition: background-color 0.25s ease, border-color 0.25s ease;
 }
-
-
-/* BRAND */
 
 .brand {
     display: flex;
     align-items: center;
     gap: 11px;
-
     text-decoration: none;
-
     color: var(--text);
 }
 
 .brand-icon {
     width: 40px;
     height: 40px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 12px;
-
-    background: linear-gradient(
-        135deg,
-        var(--primary-light),
-        var(--primary-dark)
-    );
-
-    box-shadow:
-        0 7px 18px rgba(108, 92, 231, 0.22);
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+    box-shadow: 0 7px 18px rgba(108, 92, 231, 0.22);
 }
 
 .brand-icon span {
     color: white;
-
     font-size: 18px;
-
     font-weight: 800;
 }
 
 .brand-name {
     font-size: 21px;
-
     font-weight: 800;
-
     letter-spacing: -0.7px;
+    color: var(--text);
 }
-
-
-/* NAV LINKS */
 
 .nav-links {
     display: flex;
-
     align-items: center;
-
     gap: 8px;
 }
 
 .nav-links a {
     padding: 9px 13px;
-
     border-radius: 9px;
-
-    color: #666678;
-
+    color: var(--muted);
     text-decoration: none;
-
     font-size: 13px;
-
     font-weight: 600;
-
     transition: 0.2s ease;
 }
 
 .nav-links a:hover {
     color: var(--primary);
-
-    background: #f1efff;
+    background: rgba(108, 92, 231, 0.10);
 }
 
 .nav-links .active {
     color: var(--primary);
-
-    background: #f1efff;
+    background: rgba(108, 92, 231, 0.12);
 }
 
 .nav-links .logout {
@@ -148,8 +133,7 @@ body {
 
 .nav-links .logout:hover {
     color: #c43e3e;
-
-    background: #fff1f1;
+    background: rgba(220, 38, 38, 0.1);
 }
 
 
@@ -159,16 +143,9 @@ body {
 
 .settings-container {
     width: min(850px, 90%);
-
     margin: 0 auto;
-
     padding: 60px 0 80px;
 }
-
-
-/* ========================================
-   HEADER
-======================================== */
 
 .settings-header {
     margin-bottom: 30px;
@@ -176,22 +153,26 @@ body {
 
 .settings-header h1 {
     font-size: 34px;
-
     line-height: 1.2;
-
     letter-spacing: -1.4px;
-
     font-weight: 800;
-
     margin-bottom: 8px;
+    color: var(--text);
 }
 
 .settings-header p {
     color: var(--muted);
-
     font-size: 14px;
-
     line-height: 1.6;
+}
+
+.section-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin: 28px 0 12px 4px;
 }
 
 
@@ -201,34 +182,21 @@ body {
 
 .settings-card {
     overflow: hidden;
-
     border: 1px solid var(--border);
-
     border-radius: 18px;
-
-    background: white;
-
-    box-shadow:
-        0 10px 30px rgba(30, 25, 80, 0.04);
+    background: var(--card);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 24px;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
 }
-
-
-/* ========================================
-   SETTING ROW
-======================================== */
 
 .setting {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 30px;
-
-    padding: 24px 25px;
-
-    border-bottom: 1px solid #f0f0f4;
+    padding: 22px 25px;
+    border-bottom: 1px solid var(--divider);
 }
 
 .setting:last-child {
@@ -241,19 +209,26 @@ body {
 
 .setting-title {
     margin-bottom: 5px;
-
-    color: #30303e;
-
+    color: var(--text);
     font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
+.setting-badge {
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: rgba(108, 92, 231, 0.15);
+    color: var(--primary);
     font-weight: 700;
 }
 
 .setting-description {
     color: var(--muted);
-
     font-size: 12px;
-
     line-height: 1.5;
 }
 
@@ -264,61 +239,41 @@ body {
 
 .toggle {
     position: relative;
-
     width: 48px;
     height: 27px;
-
     flex-shrink: 0;
 }
 
 .toggle input {
     opacity: 0;
-
     width: 0;
     height: 0;
 }
 
 .slider {
     position: absolute;
-
     inset: 0;
-
     cursor: pointer;
-
     border-radius: 999px;
-
-    background: #dcdce5;
-
+    background: var(--slider-bg);
     transition: 0.25s ease;
 }
 
 .slider::before {
     content: "";
-
     position: absolute;
-
     width: 21px;
     height: 21px;
-
     left: 3px;
     top: 3px;
-
     border-radius: 50%;
-
     background: white;
-
-    box-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.15);
-
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: 0.25s ease;
 }
 
 .toggle input:checked + .slider {
-    background: linear-gradient(
-        135deg,
-        var(--primary-light),
-        var(--primary-dark)
-    );
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
 }
 
 .toggle input:checked + .slider::before {
@@ -327,49 +282,123 @@ body {
 
 
 /* ========================================
-   SAVE BUTTON
+   SAVE BUTTON & FEEDBACK
 ======================================== */
 
 .save-button {
     width: 100%;
-
     height: 50px;
-
-    margin-top: 22px;
-
+    margin-top: 10px;
     border: none;
-
     border-radius: 11px;
-
-    background: linear-gradient(
-        135deg,
-        var(--primary-light),
-        var(--primary-dark)
-    );
-
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
     color: white;
-
     font-family: inherit;
-
-    font-size: 13px;
-
+    font-size: 14px;
     font-weight: 700;
-
     cursor: pointer;
-
-    box-shadow:
-        0 8px 20px rgba(108, 92, 231, 0.20);
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+    box-shadow: 0 8px 20px rgba(108, 92, 231, 0.20);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .save-button:hover {
     transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(108, 92, 231, 0.28);
+}
 
-    box-shadow:
-        0 12px 26px rgba(108, 92, 231, 0.28);
+.save-button:active {
+    transform: translateY(0);
+}
+
+.alert-success {
+    margin-bottom: 24px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #10b981;
+    font-size: 13px;
+    font-weight: 600;
+}
+    margin-bottom: 24px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #10b981;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* ========================================
+   ACCOUNT SUMMARY CARD
+======================================== */
+
+.account-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 26px;
+    gap: 16px;
+}
+
+.account-avatar-wrap {
+    flex-shrink: 0;
+}
+
+.account-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    box-shadow: 0 6px 16px rgba(108, 92, 231, 0.25);
+}
+
+.account-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.account-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+}
+
+.account-email {
+    font-size: 13px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.account-profile-btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--background);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.account-profile-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(108, 92, 231, 0.08);
 }
 
 
@@ -378,7 +407,6 @@ body {
 ======================================== */
 
 @media (max-width: 600px) {
-
     .navbar {
         padding: 0 5%;
     }
@@ -393,13 +421,11 @@ body {
 
     .nav-links a {
         padding: 8px;
-
         font-size: 11px;
     }
 
     .settings-container {
         width: 92%;
-
         padding-top: 35px;
     }
 
@@ -408,8 +434,7 @@ body {
     }
 
     .setting {
-        padding: 21px;
-
-        gap: 20px;
+        padding: 18px 20px;
+        gap: 15px;
     }
 }

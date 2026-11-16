@@ -4,21 +4,27 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Settings | Sabay?</title>
 
-    <link
-        rel="stylesheet"
-        href="{% static 'settings_app/css/settings.css' %}"
-    >
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sabay_theme');
+            const serverTheme = "{{ user_settings.dark_mode|yesno:'dark,light' }}";
+            const isDark = (savedTheme === 'dark') || (savedTheme === null && serverTheme === 'dark');
+            if (isDark) {
+                document.documentElement.classList.add('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
 
+    <link rel="stylesheet" href="{% static 'settings_app/css/settings.css' %}">
 </head>
 
 <body>
@@ -30,10 +36,7 @@
 
 <nav class="navbar">
 
-    <a
-        href="{% url 'home' %}"
-        class="brand"
-    >
+    <a href="{% url 'home' %}" class="brand">
 
         <div class="brand-icon">
             <span>S</span>
@@ -56,17 +59,11 @@
             Profile
         </a>
 
-        <a
-            href="{% url 'settings' %}"
-            class="active"
-        >
+        <a href="{% url 'settings' %}" class="active">
             Settings
         </a>
 
-        <a
-            href="{% url 'logout' %}"
-            class="logout"
-        >
+        <a href="{% url 'logout' %}" class="logout">
             Logout
         </a>
 
@@ -81,7 +78,6 @@
 
 <main class="settings-container">
 
-
     <div class="settings-header">
 
         <h1>
@@ -89,44 +85,106 @@
         </h1>
 
         <p>
-            Manage your Sabay? preferences.
+            Manage your Sabay? preferences and account experience.
         </p>
 
     </div>
 
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-    <form method="POST">
+
+    <!-- ACCOUNT SECTION -->
+    <div class="section-label">Account</div>
+
+    <div class="settings-card account-card">
+
+        <div class="account-avatar-wrap">
+            <div class="account-avatar">{{ user.username|first|upper }}</div>
+        </div>
+
+        <div class="account-details">
+
+            <div class="account-name">{{ user.username }}</div>
+
+            <div class="account-email">{{ user.email|default:"No email registered" }}</div>
+
+        </div>
+
+        <a href="{% url 'profile' %}" class="account-profile-btn">
+            View Profile
+        </a>
+
+    </div>
+
+
+    <!-- PREFERENCES FORM -->
+    <div class="section-label">Preferences</div>
+
+    <form method="POST" id="settings-form" action="{% url 'settings' %}">
 
         {% csrf_token %}
 
-
         <section class="settings-card">
+
+            <!-- DARK MODE -->
+            <div class="setting">
+
+                <div class="setting-info">
+
+                    <div class="setting-title">
+                        🌙 Dark Mode
+                    </div>
+
+                    <div class="setting-description">
+                        Use a darker appearance throughout Sabay? across all pages.
+                    </div>
+
+                </div>
+
+                <label class="toggle" for="dark-mode-toggle">
+
+                    <input
+                        type="checkbox"
+                        id="dark-mode-toggle"
+                        name="dark_mode"
+                        {% if user_settings.dark_mode %}checked{% endif %}
+                    >
+
+                    <span class="slider"></span>
+
+                </label>
+
+            </div>
 
 
             <!-- NOTIFICATIONS -->
-
             <div class="setting">
 
                 <div class="setting-info">
 
                     <div class="setting-title">
-                        Notifications
+                        🔔 Activity Notifications
                     </div>
 
                     <div class="setting-description">
-                        Get notified about activities, requests,
-                        and other updates.
+                        Get notified about new activities, companion requests, and updates.
                     </div>
 
                 </div>
 
-
-                <label class="toggle">
+                <label class="toggle" for="notifications-toggle">
 
                     <input
                         type="checkbox"
+                        id="notifications-toggle"
                         name="notifications"
-                        {% if settings.notifications %}checked{% endif %}
+                        {% if user_settings.notifications %}checked{% endif %}
                     >
 
                     <span class="slider"></span>
@@ -134,56 +192,73 @@
                 </label>
 
             </div>
-
-
-            <!-- DARK MODE -->
-
-            <div class="setting">
-
-                <div class="setting-info">
-
-                    <div class="setting-title">
-                        Dark Mode
-                    </div>
-
-                    <div class="setting-description">
-                        Use a darker appearance throughout Sabay?.
-                    </div>
-
-                </div>
-
-
-                <label class="toggle">
-
-                    <input
-                        type="checkbox"
-                        name="dark_mode"
-                        {% if settings.dark_mode %}checked{% endif %}
-                    >
-
-                    <span class="slider"></span>
-
-                </label>
-
-            </div>
-
 
         </section>
 
-
-        <button
-            type="submit"
-            class="save-button"
-        >
+        <button type="submit" class="save-button" id="save-settings-btn">
             Save Settings
         </button>
 
-
     </form>
-
 
 </main>
 
-</body>
 
+<script>
+    const darkToggle = document.getElementById('dark-mode-toggle');
+    const notifToggle = document.getElementById('notifications-toggle');
+    const settingsForm = document.getElementById('settings-form');
+
+    // Track whether user changed something without saving
+    let unsavedChanges = false;
+
+    function applyTheme(isDark) {
+        if (isDark) {
+            document.documentElement.classList.add('dark-mode');
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.body.classList.add('dark-mode');
+        } else {
+            document.documentElement.classList.remove('dark-mode');
+            document.documentElement.setAttribute('data-theme', 'light');
+            document.body.classList.remove('dark-mode');
+        }
+    }
+
+    // Toggle preview on change without saving yet
+    darkToggle.addEventListener('change', function() {
+        applyTheme(this.checked);
+        unsavedChanges = true;
+    });
+
+    notifToggle.addEventListener('change', function() {
+        unsavedChanges = true;
+    });
+
+    // On form submit: clear unsaved flag, persist to localStorage
+    settingsForm.addEventListener('submit', function() {
+        unsavedChanges = false;
+        localStorage.setItem('sabay_theme', darkToggle.checked ? 'dark' : 'light');
+    });
+
+    // Warn user if they try to navigate away with unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (unsavedChanges) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved settings. Are you sure you want to leave?';
+        }
+    });
+
+    // On page load after save: sync localStorage with the saved server value
+    // (In case page reloaded after POST redirect)
+    (function() {
+        const serverDark = {% if user_settings.dark_mode %}true{% else %}false{% endif %};
+        // Only sync if no explicit localStorage choice
+        if (localStorage.getItem('sabay_theme') !== null) {
+            // Already have local preference — keep it in sync with form state on load
+        }
+    })();
+</script>
+
+
+</body>
 </html>
