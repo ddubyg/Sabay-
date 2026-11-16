@@ -1,0 +1,480 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Post Sabay | Sabay?</title>
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sabay_theme');
+            const serverTheme = "{{ user_settings.dark_mode|yesno:'dark,light' }}";
+            const isDark = (savedTheme === 'dark') || (savedTheme === null && serverTheme === 'dark');
+            if (isDark) {
+                document.documentElement.classList.add('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+
+    <link rel="stylesheet" href="{% static 'home/css/home.css' %}">
+
+    <style>
+        .create-container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 36px 24px 60px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-bottom: 28px;
+            transition: color 0.18s;
+        }
+
+        .back-btn:hover {
+            color: var(--primary);
+        }
+
+        .back-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .create-card {
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .create-card-header {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a855f7 100%);
+            padding: 32px 36px;
+            color: white;
+        }
+
+        .create-card-header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            margin-bottom: 6px;
+        }
+
+        .create-card-header p {
+            font-size: 14px;
+            opacity: 0.85;
+            line-height: 1.5;
+        }
+
+        .create-card-body {
+            padding: 36px;
+        }
+
+        .error-banner {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #ef4444;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            letter-spacing: 0.1px;
+        }
+
+        .form-group label .required {
+            color: var(--primary);
+            margin-left: 2px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--background);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--muted);
+            opacity: 0.7;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+        }
+
+        .form-group textarea {
+            min-height: 110px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2377778a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 38px;
+            cursor: pointer;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .category-option {
+            display: none;
+        }
+
+        .category-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 14px 10px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--background);
+            cursor: pointer;
+            transition: border-color 0.18s, background 0.18s;
+            text-align: center;
+        }
+
+        .category-label:hover {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.05);
+        }
+
+        .category-option:checked + .category-label {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--primary);
+        }
+
+        .category-emoji {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .category-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.3px;
+        }
+
+        .category-option:checked + .category-label .category-name {
+            color: var(--primary);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            height: 48px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.18s, color 0.18s;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-post {
+            flex: 2;
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: white;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 22px rgba(108, 92, 231, 0.3);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-post:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(108, 92, 231, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .create-card-header {
+                padding: 24px;
+            }
+
+            .create-card-body {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+
+<!-- ========================================
+     NAVBAR
+======================================== -->
+
+<nav class="navbar">
+
+    <a href="{% url 'home' %}" class="brand">
+
+        <div class="brand-icon">
+            <span>S</span>
+        </div>
+
+        <div class="brand-name">
+            Sabay?
+        </div>
+
+    </a>
+
+
+    <div class="nav-links">
+
+        <a href="{% url 'home' %}" class="active">
+            Home
+        </a>
+
+        <a href="{% url 'profile' %}">
+            Profile
+        </a>
+
+        <a href="{% url 'settings' %}">
+            Settings
+        </a>
+
+        <a href="{% url 'logout' %}" class="logout">
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- ========================================
+     MAIN
+======================================== -->
+
+<main class="create-container">
+
+    <a href="{% url 'home' %}" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back to Home
+    </a>
+
+
+    <div class="create-card">
+
+        <div class="create-card-header">
+            <h1>+ Post a New Sabay Activity</h1>
+            <p>Tell other students what you're up to and find companions to join you.</p>
+        </div>
+
+        <div class="create-card-body">
+
+            {% if error %}
+                <div class="error-banner">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'create_activity' %}">
+
+                {% csrf_token %}
+
+                <!-- TITLE -->
+                <div class="form-group">
+                    <label for="title-input">Activity Title <span class="required">*</span></label>
+                    <input
+                        type="text"
+                        id="title-input"
+                        name="title"
+                        value="{{ title|default:'' }}"
+                        placeholder="e.g. Study session for Calculus 2, Valorant ranked push..."
+                        required
+                        autofocus
+                    >
+                </div>
+
+
+                <!-- CATEGORY -->
+                <div class="form-group">
+                    <label>Category <span class="required">*</span></label>
+                    <div class="category-grid">
+
+                        <input type="radio" name="category" id="cat-study" value="study" class="category-option" {% if category == 'study' or not category %}checked{% endif %}>
+                        <label for="cat-study" class="category-label">
+                            <span class="category-emoji">📚</span>
+                            <span class="category-name">Study</span>
+                        </label>
+
+                        <input type="radio" name="category" id="cat-sports" value="sports" class="category-option" {% if category == 'sports' %}checked{% endif %}>
+                        <label for="cat-sports" class="category-label">
+                            <span class="category-emoji">🏀</span>
+                            <span class="category-name">Sports</span>
+                        </label>
+
+                        <input type="radio" name="category" id="cat-gaming" value="gaming" class="category-option" {% if category == 'gaming' %}checked{% endif %}>
+                        <label for="cat-gaming" class="category-label">
+                            <span class="category-emoji">🎮</span>
+                            <span class="category-name">Gaming</span>
+                        </label>
+
+                        <input type="radio" name="category" id="cat-food" value="food" class="category-option" {% if category == 'food' %}checked{% endif %}>
+                        <label for="cat-food" class="category-label">
+                            <span class="category-emoji">🍜</span>
+                            <span class="category-name">Food</span>
+                        </label>
+
+                        <input type="radio" name="category" id="cat-commute" value="commute" class="category-option" {% if category == 'commute' %}checked{% endif %}>
+                        <label for="cat-commute" class="category-label">
+                            <span class="category-emoji">🚗</span>
+                            <span class="category-name">Commute</span>
+                        </label>
+
+                        <input type="radio" name="category" id="cat-hangout" value="hangout" class="category-option" {% if category == 'hangout' %}checked{% endif %}>
+                        <label for="cat-hangout" class="category-label">
+                            <span class="category-emoji">☕</span>
+                            <span class="category-name">Hangout</span>
+                        </label>
+
+                    </div>
+                </div>
+
+
+                <!-- LOCATION & TIME -->
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="location-input">Location / Venue <span class="required">*</span></label>
+                        <input
+                            type="text"
+                            id="location-input"
+                            name="location"
+                            value="{{ location|default:'' }}"
+                            placeholder="e.g. Main Canteen, Library 3F, Online..."
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="time-input">Schedule / Time <span class="required">*</span></label>
+                        <input
+                            type="text"
+                            id="time-input"
+                            name="time"
+                            value="{{ time|default:'' }}"
+                            placeholder="e.g. Today 4:30 PM, Friday after class..."
+                            required
+                        >
+                    </div>
+                </div>
+
+
+                <!-- DESCRIPTION -->
+                <div class="form-group" style="margin-top: 22px;">
+                    <label for="desc-input">Description & Details</label>
+                    <textarea
+                        id="desc-input"
+                        name="description"
+                        placeholder="What are the plans? Any requirements or notes for companions?"
+                    >{{ description|default:'' }}</textarea>
+                </div>
+
+
+                <!-- ACTIONS -->
+                <div class="form-actions">
+                    <a href="{% url 'home' %}" class="btn-cancel">Cancel</a>
+                    <button type="submit" class="btn-post">🚀 Post Activity</button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+</body>
+</html>

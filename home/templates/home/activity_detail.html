@@ -1,0 +1,484 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ activity.title }} | Sabay?</title>
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sabay_theme');
+            const serverTheme = "{{ user_settings.dark_mode|yesno:'dark,light' }}";
+            const isDark = (savedTheme === 'dark') || (savedTheme === null && serverTheme === 'dark');
+            if (isDark) {
+                document.documentElement.classList.add('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+
+    <link rel="stylesheet" href="{% static 'home/css/home.css' %}">
+
+    <style>
+        .detail-container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 36px 24px 60px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-bottom: 28px;
+            transition: color 0.18s;
+        }
+
+        .back-btn:hover {
+            color: var(--primary);
+        }
+
+        .back-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .detail-card {
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .detail-hero {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a855f7 100%);
+            padding: 36px 36px 32px;
+            color: white;
+        }
+
+        .detail-hero-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .detail-emoji {
+            font-size: 36px;
+            line-height: 1;
+        }
+
+        .detail-category-badge {
+            background: rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .detail-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .detail-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .detail-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .detail-body {
+            padding: 32px 36px;
+        }
+
+        .detail-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .detail-description {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text);
+            margin-bottom: 32px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .info-chip {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .info-chip-icon {
+            font-size: 18px;
+            line-height: 1;
+            margin-top: 1px;
+        }
+
+        .info-chip-label {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 3px;
+        }
+
+        .info-chip-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .companions-section {
+            margin-bottom: 32px;
+        }
+
+        .companions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .companion-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .companion-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 15px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .companion-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .companion-course {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .companion-badge {
+            margin-left: auto;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .join-section {
+            border-top: 1px solid var(--border);
+            padding: 24px 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .join-info {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .join-info strong {
+            color: var(--text);
+        }
+
+        .join-btn {
+            padding: 0 32px;
+            height: 50px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: white;
+            border: none;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 22px rgba(108, 92, 231, 0.3);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .join-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(108, 92, 231, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-hero {
+                padding: 28px 24px 24px;
+            }
+
+            .detail-body {
+                padding: 24px;
+            }
+
+            .join-section {
+                padding: 20px 24px;
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .join-btn {
+                width: 100%;
+            }
+
+            .detail-title {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+
+<!-- ========================================
+     NAVBAR
+======================================== -->
+
+<nav class="navbar">
+
+    <a href="{% url 'home' %}" class="brand">
+
+        <div class="brand-icon">
+            <span>S</span>
+        </div>
+
+        <div class="brand-name">
+            Sabay?
+        </div>
+
+    </a>
+
+
+    <div class="nav-links">
+
+        <a href="{% url 'home' %}" class="active">
+            Home
+        </a>
+
+        <a href="{% url 'profile' %}">
+            Profile
+        </a>
+
+        <a href="{% url 'settings' %}">
+            Settings
+        </a>
+
+        <a href="{% url 'logout' %}" class="logout">
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- ========================================
+     MAIN
+======================================== -->
+
+<main class="detail-container">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div style="margin-bottom: 20px; padding: 14px 18px; border-radius: 12px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); color: #10b981; font-size: 13px; font-weight: 600;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
+    <a href="{% url 'home' %}" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back to Home
+    </a>
+
+
+    <div class="detail-card">
+
+        <!-- HERO -->
+        <div class="detail-hero">
+
+            <div class="detail-hero-top">
+                <span class="detail-emoji">{{ emoji }}</span>
+                <span class="detail-category-badge">{{ activity.category|title }}</span>
+            </div>
+
+            <div class="detail-title">{{ activity.title }}</div>
+
+            <div class="detail-meta-row">
+                <span class="detail-meta-item">
+                    🕐 {{ activity.time }}
+                </span>
+                <span class="detail-meta-item">
+                    📍 {{ activity.location }}
+                </span>
+                <span class="detail-meta-item">
+                    👥 {{ activity.participants_count }} companion{{ activity.participants_count|pluralize }}
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- BODY -->
+        <div class="detail-body">
+
+            <div class="detail-section-title">About this Activity</div>
+            <p class="detail-description">{{ activity.description }}</p>
+
+
+            <div class="detail-section-title">Details</div>
+            <div class="info-grid">
+
+                <div class="info-chip">
+                    <span class="info-chip-icon">📂</span>
+                    <div>
+                        <div class="info-chip-label">Category</div>
+                        <div class="info-chip-value">{{ activity.category|title }}</div>
+                    </div>
+                </div>
+
+                <div class="info-chip">
+                    <span class="info-chip-icon">🕐</span>
+                    <div>
+                        <div class="info-chip-label">Schedule</div>
+                        <div class="info-chip-value">{{ activity.time }}</div>
+                    </div>
+                </div>
+
+                <div class="info-chip">
+                    <span class="info-chip-icon">📍</span>
+                    <div>
+                        <div class="info-chip-label">Location / Venue</div>
+                        <div class="info-chip-value">{{ activity.location }}</div>
+                    </div>
+                </div>
+
+                <div class="info-chip">
+                    <span class="info-chip-icon">👥</span>
+                    <div>
+                        <div class="info-chip-label">Going So Far</div>
+                        <div class="info-chip-value">{{ activity.participants_count }} companion{{ activity.participants_count|pluralize }}</div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            {% if companions %}
+            <div class="companions-section">
+                <div class="detail-section-title">Who's Going ({{ companions|length }})</div>
+                <div class="companions-list">
+                    {% for initial, name, course in companions %}
+                        <div class="companion-row">
+                            <div class="companion-avatar">{{ initial }}</div>
+                            <div>
+                                <div class="companion-name">{{ name }}</div>
+                                <div class="companion-course">{{ course }}</div>
+                            </div>
+                            <span class="companion-badge">✓ Joined</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-- JOIN SECTION -->
+        <div class="join-section">
+            <div class="join-info">
+                <strong>{{ activity.participants_count }} student{{ activity.participants_count|pluralize }}</strong> already going. Be their companion!
+            </div>
+            <form method="POST" action="{% url 'activity_detail' activity.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="join">
+                <button type="submit" class="join-btn">
+                    🎉 Join This Activity
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+</main>
+
+
+</body>
+</html>
