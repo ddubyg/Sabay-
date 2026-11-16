@@ -1,0 +1,194 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Profile | Sabay?</title>
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sabay_theme');
+            const serverTheme = "{{ user_settings.dark_mode|yesno:'dark,light' }}";
+            const isDark = (savedTheme === 'dark') || (savedTheme === null && serverTheme === 'dark');
+            if (isDark) {
+                document.documentElement.classList.add('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+
+    <link rel="stylesheet" href="{% static 'user_profile/css/profile.css' %}">
+</head>
+
+<body>
+
+
+<!-- ========================================
+     NAVBAR
+======================================== -->
+
+<nav class="navbar">
+
+    <a href="{% url 'home' %}" class="brand">
+
+        <div class="brand-icon">
+            <span>S</span>
+        </div>
+
+        <div class="brand-name">
+            Sabay?
+        </div>
+
+    </a>
+
+
+    <div class="nav-links">
+
+        <a href="{% url 'home' %}">
+            Home
+        </a>
+
+        <a href="{% url 'profile' %}" class="active">
+            Profile
+        </a>
+
+        <a href="{% url 'settings' %}">
+            Settings
+        </a>
+
+        <a href="{% url 'logout' %}" class="logout">
+            Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<main class="profile-container" style="max-width: 720px;">
+
+    <!-- BACK BUTTON -->
+    <a href="{% url 'profile' %}" class="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back to Profile
+    </a>
+
+
+    <div class="card edit-card">
+
+        <div class="edit-card-header">
+            <h1>Edit Profile</h1>
+            <p>Update your student details and the activities you're interested in.</p>
+        </div>
+
+        <form method="POST" action="{% url 'edit_profile' %}">
+
+            {% csrf_token %}
+
+            <!-- BASIC INFO -->
+            <div class="edit-section">
+                <div class="edit-section-title">Basic Information</div>
+
+                <div class="form-field">
+                    <label for="course-input">Course / Major</label>
+                    <input
+                        type="text"
+                        id="course-input"
+                        name="course"
+                        value="{{ profile.course|default:'' }}"
+                        placeholder="e.g. BS Computer Science, BS Nursing, BS Architecture"
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="year-input">Year Level</label>
+                    <input
+                        type="text"
+                        id="year-input"
+                        name="year_level"
+                        value="{{ profile.year_level|default:'' }}"
+                        placeholder="e.g. 1st Year, 2nd Year, 3rd Year, Senior"
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="email-input">Email Address</label>
+                    <input
+                        type="email"
+                        id="email-input"
+                        name="email"
+                        value="{{ user.email|default:'' }}"
+                        placeholder="yourname@school.edu"
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="bio-input">About Me (Bio)</label>
+                    <textarea
+                        id="bio-input"
+                        name="bio"
+                        placeholder="Introduce yourself! What subjects do you study? What sports or games do you play? Favorite food or campus hangout spots?"
+                    >{{ profile.bio|default:'' }}</textarea>
+                </div>
+            </div>
+
+
+            <!-- INTERESTS -->
+            <div class="edit-section">
+                <div class="edit-section-title">Interests & Vibes</div>
+                <p class="edit-section-desc">Select the activities you're open to doing sabay.</p>
+
+                <div class="interests-grid">
+                    {% for opt in interest_options %}
+                        <label class="interest-option {% if opt.checked %}checked{% endif %}">
+                            <input
+                                type="checkbox"
+                                name="interests"
+                                value="{{ opt.key }}"
+                                {% if opt.checked %}checked{% endif %}
+                            >
+                            <span class="interest-option-label">{{ opt.label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="edit-actions">
+                <a href="{% url 'profile' %}" class="btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn-primary">
+                    Save Changes
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</main>
+
+
+<script>
+    // Toggle visual state of interest checkboxes
+    document.querySelectorAll('.interest-option input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', function() {
+            this.closest('.interest-option').classList.toggle('checked', this.checked);
+        });
+    });
+</script>
+
+
+</body>
+</html>

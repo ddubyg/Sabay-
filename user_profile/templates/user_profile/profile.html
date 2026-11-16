@@ -4,32 +4,39 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Profile | Sabay?</title>
 
-    <link
-        rel="stylesheet"
-        href="{% static 'user_profile/css/profile.css' %}"
-    >
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sabay_theme');
+            const serverTheme = "{{ user_settings.dark_mode|yesno:'dark,light' }}";
+            const isDark = (savedTheme === 'dark') || (savedTheme === null && serverTheme === 'dark');
+            if (isDark) {
+                document.documentElement.classList.add('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark-mode');
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
 
+    <link rel="stylesheet" href="{% static 'user_profile/css/profile.css' %}">
 </head>
 
 <body>
 
 
+<!-- ========================================
+     NAVBAR
+======================================== -->
+
 <nav class="navbar">
 
-    <a
-        href="{% url 'home' %}"
-        class="brand"
-    >
+    <a href="{% url 'home' %}" class="brand">
 
         <div class="brand-icon">
             <span>S</span>
@@ -48,7 +55,7 @@
             Home
         </a>
 
-        <a href="{% url 'profile' %}">
+        <a href="{% url 'profile' %}" class="active">
             Profile
         </a>
 
@@ -56,10 +63,7 @@
             Settings
         </a>
 
-        <a
-            href="{% url 'logout' %}"
-            class="logout"
-        >
+        <a href="{% url 'logout' %}" class="logout">
             Logout
         </a>
 
@@ -70,27 +74,77 @@
 
 <main class="profile-container">
 
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-    <!-- PROFILE HEADER -->
+
+    <!-- PROFILE HERO CARD -->
 
     <section class="profile-card">
 
         <div class="profile-content">
 
-            <div class="avatar">
-                {{ user.username|first|upper }}
+            <div class="profile-left">
+
+                <div class="avatar">
+                    {{ user.username|first|upper }}
+                </div>
+
+                <div class="profile-info">
+
+                    <h1>
+                        {{ user.username }}
+                    </h1>
+
+                    <p>
+                        {% if profile.course %}
+                            {{ profile.course }}{% if profile.year_level %} · {{ profile.year_level }}{% endif %}
+                        {% else %}
+                            Sabay? Campus Explorer
+                        {% endif %}
+                    </p>
+
+                    <div class="profile-badges">
+                        <span class="badge">
+                            🎓 {% if profile.year_level %}{{ profile.year_level }}{% else %}Student{% endif %}
+                        </span>
+                        <span class="badge">
+                            ✨ Active Member
+                        </span>
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="profile-info">
+            <a href="{% url 'edit_profile' %}" class="edit-profile-btn">
+                ✏️ Edit Profile
+            </a>
 
-                <h1>
-                    {{ user.username }}
-                </h1>
+        </div>
 
-                <p>
-                    Sabay? member
-                </p>
 
+        <!-- STATS INSIDE HERO CARD -->
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Activities Joined</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Activities Hosted</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Sabay Companions</div>
             </div>
 
         </div>
@@ -108,11 +162,11 @@
         <section class="card">
 
             <h2>
-                About you
+                About You
             </h2>
 
             <p class="card-description">
-                Your basic account information.
+                Your campus background and account details.
             </p>
 
 
@@ -123,7 +177,7 @@
                 </div>
 
                 <div class="detail-value">
-                    {{ user.username }}
+                    @{{ user.username }}
                 </div>
 
             </div>
@@ -132,7 +186,7 @@
             <div class="detail">
 
                 <div class="detail-label">
-                    Email
+                    Email Address
                 </div>
 
                 <div class="detail-value">
@@ -145,7 +199,46 @@
             <div class="detail">
 
                 <div class="detail-label">
-                    Member since
+                    Course / Degree
+                </div>
+
+                <div class="detail-value">
+                    {{ profile.course|default:"Not specified yet" }}
+                </div>
+
+            </div>
+
+
+            <div class="detail">
+
+                <div class="detail-label">
+                    Year Level
+                </div>
+
+                <div class="detail-value">
+                    {{ profile.year_level|default:"Not specified yet" }}
+                </div>
+
+            </div>
+
+
+            <div class="detail">
+
+                <div class="detail-label">
+                    Bio
+                </div>
+
+                <div class="detail-value">
+                    {{ profile.bio|default:"No bio added yet. Tell other students what kind of activities you enjoy!" }}
+                </div>
+
+            </div>
+
+
+            <div class="detail">
+
+                <div class="detail-label">
+                    Member Since
                 </div>
 
                 <div class="detail-value">
@@ -155,48 +248,59 @@
             </div>
 
 
-            <button class="profile-button">
-                Edit Profile
-            </button>
+            <a href="{% url 'edit_profile' %}" class="profile-button">
+                ✏️ Edit Profile Information
+            </a>
 
         </section>
 
 
-        <!-- INTERESTS -->
+        <!-- INTERESTS & ACTIVITIES -->
 
         <section class="card">
 
             <h2>
-                Interests
+                Interests & Vibes
             </h2>
 
             <p class="card-description">
-                Things you might want to do with other people.
+                Activities you're down to do sabay. Edit these in your profile settings.
             </p>
 
 
-            <div class="interests">
+            <div class="interests" id="interests-container">
 
-                <span class="interest">
-                    Study
-                </span>
+                {% for chip in interest_chips %}
+                    <span class="interest {% if chip.active %}active{% endif %}">
+                        {{ chip.label }}
+                    </span>
+                {% endfor %}
 
-                <span class="interest">
-                    Sports
-                </span>
+            </div>
 
-                <span class="interest">
-                    Gaming
-                </span>
+            <div style="margin-top: 20px;">
+                <a href="{% url 'edit_profile' %}" class="interests-edit-link">
+                    ⚙️ Manage interests in Edit Profile →
+                </a>
+            </div>
 
-                <span class="interest">
-                    Food
-                </span>
 
-                <span class="interest">
-                    Hangout
-                </span>
+            <h2 style="margin-top: 28px;">
+                Recent Activity
+            </h2>
 
+            <p class="card-description">
+                Your latest companion connections.
+            </p>
+
+            <div class="detail">
+                <div class="detail-label">Recently Joined</div>
+                <div class="detail-value">Study Session at CIT-U Library</div>
+            </div>
+
+            <div class="detail">
+                <div class="detail-label">Recently Hosted</div>
+                <div class="detail-value">Weekend Basketball at Campus Court</div>
             </div>
 
         </section>
@@ -207,6 +311,6 @@
 
 </main>
 
-</body>
 
+</body>
 </html>
