@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login | Sabay?</title>
+    <title>Register | Sabay?</title>
 
     <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
 </head>
@@ -79,16 +79,16 @@
 
     <section class="auth-form-section">
 
-        <div class="auth-card">
+        <div class="auth-card register-card">
 
             <div class="auth-header">
 
                 <h2>
-                    Welcome back
+                    Create an account
                 </h2>
 
                 <p>
-                    Log in to continue finding people to do things with.
+                    Join Sabay? and start finding people to do things with.
                 </p>
 
             </div>
@@ -103,28 +103,33 @@
             {% endif %}
 
 
-            <form method="POST">
+            <form method="POST" action="{% url 'register' %}" id="register-form" novalidate>
 
                 {% csrf_token %}
 
 
                 <div class="form-group">
 
-                    <label class="form-label">
+                    <label class="form-label" for="username-input">
                         Username
                     </label>
 
                     <div class="input-wrapper">
 
                         <span class="input-icon">
-                            @
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
                         </span>
 
                         <input
+                            id="username-input"
                             class="form-input"
                             type="text"
                             name="username"
-                            placeholder="Enter your username"
+                            value="{{ username|default:'' }}"
+                            placeholder="Choose a username"
                             autocomplete="username"
                             required
                         >
@@ -136,22 +141,27 @@
 
                 <div class="form-group">
 
-                    <label class="form-label">
-                        Password
+                    <label class="form-label" for="email-input">
+                        Email Address
                     </label>
 
                     <div class="input-wrapper">
 
                         <span class="input-icon">
-                            •
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                            </svg>
                         </span>
 
                         <input
+                            id="email-input"
                             class="form-input"
-                            type="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            autocomplete="current-password"
+                            type="email"
+                            name="email"
+                            value="{{ email|default:'' }}"
+                            placeholder="Enter your email"
+                            autocomplete="email"
                             required
                         >
 
@@ -160,11 +170,80 @@
                 </div>
 
 
+                <div class="form-group">
+
+                    <label class="form-label" for="password-input">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </span>
+
+                        <input
+                            id="password-input"
+                            class="form-input"
+                            type="password"
+                            name="password"
+                            value="{{ password|default:'' }}"
+                            placeholder="Create a password (min. 6 characters)"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                    </div>
+
+                    <div id="password-hint" class="input-hint">
+                        Must be at least 6 characters
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label" for="confirm-password-input">
+                        Confirm Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </span>
+
+                        <input
+                            id="confirm-password-input"
+                            class="form-input"
+                            type="password"
+                            name="confirm_password"
+                            value="{{ confirm_password|default:'' }}"
+                            placeholder="Confirm your password"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                    </div>
+
+                    <div id="confirm-password-hint" class="input-hint" style="display: none;"></div>
+
+                </div>
+
+
                 <button
                     class="auth-button"
                     type="submit"
+                    id="submit-button"
                 >
-                    Log in
+                    Create account
                 </button>
 
             </form>
@@ -172,10 +251,10 @@
 
             <div class="auth-footer">
 
-                Don't have an account?
+                Already have an account?
 
-                <a href="{% url 'register' %}">
-                    Create one
+                <a href="{% url 'login' %}">
+                    Log in
                 </a>
 
             </div>
@@ -185,6 +264,106 @@
     </section>
 
 </div>
+
+<script>
+    const form = document.getElementById('register-form');
+    const passwordInput = document.getElementById('password-input');
+    const confirmInput = document.getElementById('confirm-password-input');
+    const passwordHint = document.getElementById('password-hint');
+    const confirmHint = document.getElementById('confirm-password-hint');
+
+    function validatePassword() {
+        const val = passwordInput.value;
+        if (val.length === 0) {
+            passwordHint.className = 'input-hint';
+            passwordHint.textContent = 'Must be at least 6 characters';
+            passwordHint.style.color = '#858595';
+            passwordInput.classList.remove('is-invalid', 'is-valid');
+            return false;
+        } else if (val.length < 6) {
+            passwordHint.className = 'input-hint error';
+            passwordHint.textContent = 'Password must be at least 6 characters';
+            passwordHint.style.color = '#e53e3e';
+            passwordInput.classList.add('is-invalid');
+            passwordInput.classList.remove('is-valid');
+            return false;
+        } else {
+            passwordHint.className = 'input-hint success';
+            passwordHint.textContent = '✓ Password meets requirement';
+            passwordHint.style.color = '#10b981';
+            passwordInput.classList.remove('is-invalid');
+            passwordInput.classList.add('is-valid');
+            return true;
+        }
+    }
+
+    function validateConfirm() {
+        const pVal = passwordInput.value;
+        const cVal = confirmInput.value;
+        if (cVal.length === 0) {
+            confirmHint.style.display = 'none';
+            confirmInput.classList.remove('is-invalid', 'is-valid');
+            return true;
+        }
+        confirmHint.style.display = 'block';
+        if (pVal !== cVal) {
+            confirmHint.className = 'input-hint error';
+            confirmHint.textContent = 'Passwords do not match';
+            confirmHint.style.color = '#e53e3e';
+            confirmInput.classList.add('is-invalid');
+            confirmInput.classList.remove('is-valid');
+            return false;
+        } else {
+            confirmHint.className = 'input-hint success';
+            confirmHint.textContent = '✓ Passwords match';
+            confirmHint.style.color = '#10b981';
+            confirmInput.classList.remove('is-invalid');
+            confirmInput.classList.add('is-valid');
+            return true;
+        }
+    }
+
+    passwordInput.addEventListener('input', function() {
+        validatePassword();
+        if (confirmInput.value.length > 0) {
+            validateConfirm();
+        }
+    });
+
+    confirmInput.addEventListener('input', validateConfirm);
+
+    if (passwordInput.value.length > 0) {
+        validatePassword();
+    }
+    if (confirmInput.value.length > 0) {
+        validateConfirm();
+    }
+
+    form.addEventListener('submit', function(e) {
+        const isPassValid = validatePassword();
+        const isConfirmValid = validateConfirm();
+
+        if (passwordInput.value.length < 6) {
+            e.preventDefault();
+            passwordHint.className = 'input-hint error';
+            passwordHint.textContent = 'Password must be at least 6 characters';
+            passwordHint.style.color = '#e53e3e';
+            passwordInput.classList.add('is-invalid');
+            passwordInput.focus();
+            return false;
+        }
+
+        if (passwordInput.value !== confirmInput.value) {
+            e.preventDefault();
+            confirmHint.style.display = 'block';
+            confirmHint.className = 'input-hint error';
+            confirmHint.textContent = 'Passwords do not match';
+            confirmInput.classList.add('is-invalid');
+            confirmInput.focus();
+            return false;
+        }
+    });
+</script>
 
 </body>
 </html>

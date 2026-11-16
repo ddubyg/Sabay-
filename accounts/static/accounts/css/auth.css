@@ -264,6 +264,9 @@ body {
     font-size: 16px;
 
     pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .form-input {
@@ -306,8 +309,36 @@ body {
     transform: translateY(-1px);
 }
 
+.form-input.is-invalid {
+    border-color: #e53e3e !important;
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12) !important;
+}
+
+.form-input.is-valid {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.10) !important;
+}
+
+.input-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #858595;
+    transition: all 0.2s ease;
+}
+
+.input-hint.error {
+    color: #e53e3e !important;
+    font-weight: 600;
+}
+
+.input-hint.success {
+    color: #10b981 !important;
+    font-weight: 600;
+}
+
 /* ========================================
-   ERROR
+   ERROR & SUCCESS
 ======================================== */
 
 .error {
@@ -323,6 +354,29 @@ body {
 
     font-size: 13px;
     line-height: 1.5;
+}
+
+.success {
+    margin-bottom: 20px;
+    padding: 13px 15px;
+
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+
+    background: #f0fdf4;
+
+    color: #166534;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.register-card .auth-header {
+    margin-bottom: 24px;
+}
+
+.register-card .form-group {
+    margin-bottom: 16px;
 }
 
 /* ========================================
