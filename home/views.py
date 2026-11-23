@@ -1,10 +1,21 @@
+from datetime import datetime, time, timedelta
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 from .models import Activity, Participation
+
+# Format used by <input type="datetime-local">.
+DATETIME_INPUT_FORMAT = '%Y-%m-%dT%H:%M'
+
+
+def _local_at(days_from_today, hour, minute=0):
+    day = timezone.localdate() + timedelta(days=days_from_today)
+    return timezone.make_aware(datetime.combine(day, time(hour, minute)))
 
 
 def get_or_seed_activities():
@@ -14,50 +25,51 @@ def get_or_seed_activities():
                 'title': 'Study at Library',
                 'category': 'study',
                 'location': 'CIT-U Library 3F',
-                'time': 'Today, 3:00 PM',
+                'starts_at': _local_at(1, 15),
                 'description': 'Reviewing for Midterm Exam in Algorithms and Data Structures. Bring your notes and laptop!',
             },
             {
                 'title': 'Pick-up Basketball Game',
                 'category': 'sports',
                 'location': 'Campus Gymnasium Court',
-                'time': 'Tomorrow, 5:00 PM',
+                'starts_at': _local_at(1, 17),
                 'description': 'Casual 5v5 half-court or full-court games after class. All skill levels welcome!',
             },
             {
                 'title': 'Valorant 5-Stack Ranked',
                 'category': 'gaming',
                 'location': 'Discord / Online',
-                'time': 'Tonight, 8:00 PM',
+                'starts_at': _local_at(1, 20),
                 'description': 'Ranked competitive climb tonight. Need 2 friendly chill teammates. Comms required!',
             },
             {
                 'title': 'Samgyup Lunch Treat',
                 'category': 'food',
                 'location': 'Korean BBQ Spot Near Campus',
-                'time': 'Friday, 12:30 PM',
+                'starts_at': _local_at(3, 12, 30),
                 'description': 'Unlimited samgyupsal buffet after our Friday classes. Splitting the bill evenly!',
             },
             {
                 'title': 'Carpool to IT Park',
                 'category': 'commute',
                 'location': 'CIT-U Main Gate',
-                'time': 'Daily, 5:30 PM',
+                'starts_at': _local_at(2, 17, 30),
                 'description': 'Heading towards IT Park / Lahug after afternoon classes. Safe, comfortable ride.',
             },
             {
                 'title': 'Coffee & Chill / Coding',
                 'category': 'hangout',
                 'location': 'Cafe Talk Lounge',
-                'time': 'Thursday, 4:00 PM',
+                'starts_at': _local_at(4, 16),
                 'description': 'Quiet productive cafe session with iced lattes and chill beats. Working on personal coding tasks.',
             },
         ]
         for item in initial_activities:
             Activity.objects.create(**item)
 
-    # Meta.ordering is ignored on GROUP BY queries, so order explicitly.
-    return Activity.objects.annotate(participant_total=Count('participations')).order_by('-created_at')
+    # Upcoming only, soonest first (Activity.upcoming orders explicitly, which
+    # matters because Meta.ordering is ignored on GROUP BY queries).
+    return Activity.upcoming().annotate(participant_total=Count('participations'))
 
 
 @login_required
@@ -105,6 +117,10 @@ def join_activity_view(request, pk):
         messages.info(request, "You're hosting this activity, so you're already in.")
         return redirect('activity_detail', pk=pk)
 
+    if activity.is_past:
+        messages.error(request, 'This activity has already ended.')
+        return redirect('activity_detail', pk=pk)
+
     try:
         _, created = Participation.objects.get_or_create(activity=activity, user=request.user)
     except IntegrityError:
@@ -129,34 +145,59 @@ def leave_activity_view(request, pk):
     return redirect('activity_detail', pk=pk)
 
 
+def _parse_starts_at(raw):
+    """datetime-local string -> aware datetime in the site timezone, or None."""
+    try:
+        naive = datetime.strptime(raw, DATETIME_INPUT_FORMAT)
+    except (TypeError, ValueError):
+        return None
+    return timezone.make_aware(naive)
+
+
 def _read_activity_form(request):
-    """Pull and validate the activity fields. Returns (data, error)."""
-    data = {
+    """Pull and validate the activity fields.
+
+    Returns (fields, form_values, error). `fields` is ready for the model;
+    `form_values` is what to put back into the form if there's an error.
+    """
+    form_values = {
         'title': request.POST.get('title', '').strip(),
         'category': request.POST.get('category', 'study').strip().lower(),
         'location': request.POST.get('location', '').strip(),
-        'time': request.POST.get('time', '').strip(),
+        'starts_at': request.POST.get('starts_at', '').strip(),
         'description': request.POST.get('description', '').strip(),
     }
-    if not data['title'] or not data['location'] or not data['time']:
-        return data, 'Please fill in all required fields.'
-    if data['category'] not in CATEGORY_EMOJIS:
-        return data, 'Please pick one of the listed categories.'
-    return data, None
+    if not form_values['title'] or not form_values['location'] or not form_values['starts_at']:
+        return None, form_values, 'Please fill in all required fields.'
+    if form_values['category'] not in CATEGORY_EMOJIS:
+        return None, form_values, 'Please pick one of the listed categories.'
+
+    starts_at = _parse_starts_at(form_values['starts_at'])
+    if starts_at is None:
+        return None, form_values, 'Please pick a valid date and time.'
+    if starts_at < timezone.now() - timedelta(minutes=5):
+        return None, form_values, "That time has already passed. Pick a time that's coming up."
+
+    return {**form_values, 'starts_at': starts_at}, form_values, None
+
+
+def _form_context(**extra):
+    """Shared context for the post/edit form: the earliest pickable time."""
+    return {'min_starts_at': timezone.localtime().strftime(DATETIME_INPUT_FORMAT), **extra}
 
 
 @login_required
 def create_activity_view(request):
     if request.method == 'POST':
-        data, error = _read_activity_form(request)
+        fields, form_values, error = _read_activity_form(request)
         if error:
-            return render(request, 'home/create_activity.html', {'error': error, **data})
+            return render(request, 'home/create_activity.html', _form_context(error=error, **form_values))
 
-        Activity.objects.create(creator=request.user, **data)
+        Activity.objects.create(creator=request.user, **fields)
         messages.success(request, 'New Sabay activity posted successfully!')
         return redirect('home')
 
-    return render(request, 'home/create_activity.html')
+    return render(request, 'home/create_activity.html', _form_context())
 
 
 def _get_own_activity(request, pk):
@@ -177,24 +218,24 @@ def edit_activity_view(request, pk):
     context = {'editing': True, 'activity': activity}
 
     if request.method == 'POST':
-        data, error = _read_activity_form(request)
+        fields, form_values, error = _read_activity_form(request)
         if error:
-            return render(request, 'home/create_activity.html', {**context, 'error': error, **data})
+            return render(request, 'home/create_activity.html', _form_context(**context, error=error, **form_values))
 
-        for field, value in data.items():
+        for field, value in fields.items():
             setattr(activity, field, value)
         activity.save()
         messages.success(request, 'Activity updated.')
         return redirect('activity_detail', pk=pk)
 
-    return render(request, 'home/create_activity.html', {
+    return render(request, 'home/create_activity.html', _form_context(
         **context,
-        'title': activity.title,
-        'category': activity.category,
-        'location': activity.location,
-        'time': activity.time,
-        'description': activity.description,
-    })
+        title=activity.title,
+        category=activity.category,
+        location=activity.location,
+        starts_at=timezone.localtime(activity.starts_at).strftime(DATETIME_INPUT_FORMAT),
+        description=activity.description,
+    ))
 
 
 @login_required

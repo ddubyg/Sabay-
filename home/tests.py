@@ -1,7 +1,19 @@
+from datetime import timedelta
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils import timezone
 from .models import Activity, Participation
+
+
+def in_hours(hours):
+    return timezone.now() + timedelta(hours=hours)
+
+
+def form_time(hours):
+    """What a datetime-local input would submit, `hours` from now."""
+    return timezone.localtime(in_hours(hours)).strftime('%Y-%m-%dT%H:%M')
 
 
 class HomeTests(TestCase):
@@ -33,7 +45,7 @@ class HomeTests(TestCase):
             'title': 'Midterm Study Group',
             'category': 'study',
             'location': 'Library 2F',
-            'time': 'Friday at 2 PM',
+            'starts_at': form_time(24),
             'description': 'Let us study Calculus and Physics together.',
         }, follow=True)
 
@@ -48,7 +60,7 @@ class JoinLeaveTests(TestCase):
         self.guest = User.objects.create_user(username='guest', password='password123')
         self.activity = Activity.objects.create(
             title='Badminton', category='sports', location='Gym',
-            time='Saturday 9 AM', description='Doubles', creator=self.host,
+            starts_at=in_hours(48), description='Doubles', creator=self.host,
         )
         self.detail_url = reverse('activity_detail', args=[self.activity.pk])
         self.join_url = reverse('join_activity', args=[self.activity.pk])
@@ -108,14 +120,14 @@ class HostManageTests(TestCase):
         self.other = User.objects.create_user(username='other', password='password123')
         self.activity = Activity.objects.create(
             title='Old title', category='food', location='Canteen',
-            time='Noon', description='Lunch', creator=self.host,
+            starts_at=in_hours(24), description='Lunch', creator=self.host,
         )
         self.edit_url = reverse('edit_activity', args=[self.activity.pk])
         self.delete_url = reverse('delete_activity', args=[self.activity.pk])
         self.detail_url = reverse('activity_detail', args=[self.activity.pk])
         self.form = {
             'title': 'New title', 'category': 'study', 'location': 'Library',
-            'time': '3 PM', 'description': 'Changed',
+            'starts_at': form_time(30), 'description': 'Changed',
         }
 
     def test_feed_and_detail_show_host(self):
@@ -194,11 +206,75 @@ class HostManageTests(TestCase):
         Participation.objects.create(activity=self.activity, user=self.other)
         self.assertContains(self.client.get(reverse('home')), "You're going")
 
-    def test_feed_lists_newest_first(self):
-        newer = Activity.objects.create(
-            title='Newer', category='study', location='Lib', time='Now',
+    def test_feed_lists_soonest_first(self):
+        sooner = Activity.objects.create(
+            title='Sooner', category='study', location='Lib', starts_at=in_hours(2),
             description='', creator=self.other,
         )
         self.client.login(username='other', password='password123')
         titles = [a.title for a in self.client.get(reverse('home')).context['activities']]
-        self.assertEqual(titles[0], newer.title)
+        self.assertEqual(titles, [sooner.title, self.activity.title])
+
+
+class ScheduleTests(TestCase):
+    def setUp(self):
+        self.host = User.objects.create_user(username='host', password='password123')
+        self.guest = User.objects.create_user(username='guest', password='password123')
+        self.client.login(username='guest', password='password123')
+
+    def make(self, title, starts_at, creator=None):
+        return Activity.objects.create(
+            title=title, category='study', location='Lib', starts_at=starts_at,
+            description='', creator=creator or self.host,
+        )
+
+    def form(self, **overrides):
+        return {'title': 'Run', 'category': 'sports', 'location': 'Oval',
+                'starts_at': form_time(24), 'description': '', **overrides}
+
+    def test_feed_hides_ended_but_keeps_happening_now(self):
+        self.make('Ended', in_hours(-3))
+        self.make('Now', in_hours(-0.5))
+        self.make('Later', in_hours(5))
+        titles = [a.title for a in self.client.get(reverse('home')).context['activities']]
+        self.assertEqual(titles, ['Now', 'Later'])
+
+    def test_create_stores_local_time(self):
+        self.client.post(reverse('create_activity'), self.form(starts_at='2099-03-14T15:30'))
+        local = timezone.localtime(Activity.objects.get(title='Run').starts_at)
+        self.assertEqual((local.year, local.month, local.day, local.hour, local.minute), (2099, 3, 14, 15, 30))
+
+    def test_create_rejects_past_time(self):
+        response = self.client.post(reverse('create_activity'), self.form(starts_at=form_time(-2)))
+        self.assertContains(response, 'already passed')
+        self.assertFalse(Activity.objects.exists())
+
+    def test_create_rejects_garbage_time(self):
+        response = self.client.post(reverse('create_activity'), self.form(starts_at='next friday'))
+        self.assertContains(response, 'valid date and time')
+        self.assertFalse(Activity.objects.exists())
+
+    def test_error_keeps_typed_values(self):
+        response = self.client.post(reverse('create_activity'), self.form(title='', starts_at='2099-01-02T08:00'))
+        self.assertContains(response, 'value="2099-01-02T08:00"')
+
+    def test_edit_form_prefills_local_time(self):
+        activity = self.make('Mine', timezone.make_aware(timezone.datetime(2099, 5, 6, 7, 8)), creator=self.guest)
+        response = self.client.get(reverse('edit_activity', args=[activity.pk]))
+        self.assertContains(response, 'value="2099-05-06T07:08"')
+
+    def test_cannot_join_ended_activity(self):
+        ended = self.make('Ended', in_hours(-3))
+        response = self.client.post(reverse('join_activity', args=[ended.pk]), follow=True)
+        self.assertFalse(Participation.objects.exists())
+        self.assertContains(response, 'This activity has ended.')
+        self.assertNotContains(response, 'Join This Activity')
+
+    def test_labels(self):
+        tomorrow_9 = timezone.make_aware(timezone.datetime.combine(
+            timezone.localdate() + timedelta(days=1), timezone.datetime.min.time().replace(hour=9)))
+        self.assertEqual(self.make('A', tomorrow_9).when_label, 'Tomorrow, 9:00 AM')
+        self.assertEqual(self.make('B', in_hours(-0.2)).when_label, 'Happening now')
+        far = timezone.make_aware(timezone.datetime(2099, 12, 25, 18, 0))
+        self.assertEqual(self.make('C', far).when_label, 'Dec 25, 2099, 6:00 PM')
+        self.assertEqual(self.make('D', far).full_when_label, 'Friday, December 25, 2099 · 6:00 PM')

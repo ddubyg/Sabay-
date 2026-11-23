@@ -9,7 +9,7 @@ class ParticipationInline(admin.TabularInline):
 
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'creator', 'time', 'created_at')
+    list_display = ('title', 'category', 'creator', 'starts_at', 'created_at')
     list_filter = ('category',)
     inlines = [ParticipationInline]
 

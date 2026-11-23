@@ -211,7 +211,7 @@
                      data-category="{{ activity.category|lower }}"
                      data-title="{{ activity.title }}"
                      data-location="{{ activity.location }}"
-                     data-time="{{ activity.time }}"
+                     data-time="{{ activity.when_label }}"
                      data-desc="{{ activity.description }}">
 
                     <div>
@@ -223,7 +223,7 @@
                             </span>
 
                             <span class="activity-time-tag">
-                                ◷ {{ activity.time }}
+                                ◷ {{ activity.when_label }}
                             </span>
 
                         </div>

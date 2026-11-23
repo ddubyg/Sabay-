@@ -461,7 +461,7 @@
 
             <div class="detail-meta-row">
                 <span class="detail-meta-item">
-                    🕐 {{ activity.time }}
+                    🕐 {{ activity.when_label }}
                 </span>
                 <span class="detail-meta-item">
                     📍 {{ activity.location }}
@@ -496,7 +496,7 @@
                     <span class="info-chip-icon">🕐</span>
                     <div>
                         <div class="info-chip-label">Schedule</div>
-                        <div class="info-chip-value">{{ activity.time }}</div>
+                        <div class="info-chip-value">{{ activity.full_when_label }}</div>
                     </div>
                 </div>
 
@@ -568,6 +568,11 @@
                         <button type="submit" class="leave-btn">Delete</button>
                     </form>
                 </div>
+            {% elif activity.is_past %}
+                <div class="join-info">
+                    {% if has_joined %}You went to this one. {% endif %}<strong>This activity has ended.</strong>
+                </div>
+                <a href="{% url 'home' %}" class="edit-btn">Find another →</a>
             {% elif has_joined %}
                 <div class="join-info">
                     <strong>You're going!</strong> Plans changed? You can leave anytime.

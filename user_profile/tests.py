@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.test import TestCase, Client
+from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
 from .models import Profile
@@ -62,7 +65,7 @@ class ProfileStatsTests(TestCase):
 
     def make(self, title, creator):
         return self.Activity.objects.create(
-            title=title, category='study', location='Lib', time='Now',
+            title=title, category='study', location='Lib', starts_at=timezone.now() + timedelta(days=1),
             description='', creator=creator,
         )
 
