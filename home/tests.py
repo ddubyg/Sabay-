@@ -278,3 +278,45 @@ class ScheduleTests(TestCase):
         far = timezone.make_aware(timezone.datetime(2099, 12, 25, 18, 0))
         self.assertEqual(self.make('C', far).when_label, 'Dec 25, 2099, 6:00 PM')
         self.assertEqual(self.make('D', far).full_when_label, 'Friday, December 25, 2099 · 6:00 PM')
+
+
+class ReseedDemoTests(TestCase):
+    def setUp(self):
+        from io import StringIO
+        from django.core.management import call_command
+        self.run = lambda *args: call_command('reseed_demo', *args, stdout=StringIO())
+        self.user = User.objects.create_user(username='poster', password='password123')
+
+    def test_moves_ended_starters_to_upcoming(self):
+        from .demo_data import seed_starter_activities
+        seed_starter_activities()
+        Activity.objects.update(starts_at=in_hours(-48))
+        self.assertFalse(Activity.upcoming().exists())
+
+        self.run()
+        self.assertEqual(Activity.upcoming().count(), 6)
+        self.assertEqual(Activity.objects.count(), 6)
+
+    def test_never_touches_user_posts_even_with_same_title(self):
+        mine = Activity.objects.create(
+            title='Study at Library', category='study', location='Home',
+            starts_at=in_hours(-48), description='', creator=self.user,
+        )
+        self.run()
+        mine.refresh_from_db()
+        self.assertEqual(mine.location, 'Home')
+        self.assertTrue(mine.is_past)
+        self.assertEqual(Activity.objects.filter(creator__isnull=True).count(), 6)
+
+    def test_recreates_missing_starters(self):
+        self.run()
+        self.assertEqual(Activity.objects.filter(creator__isnull=True).count(), 6)
+
+    def test_keeps_joins_unless_asked(self):
+        from .demo_data import seed_starter_activities
+        seed_starter_activities()
+        Participation.objects.create(activity=Activity.objects.first(), user=self.user)
+        self.run()
+        self.assertEqual(Participation.objects.count(), 1)
+        self.run('--clear-joins')
+        self.assertEqual(Participation.objects.count(), 0)

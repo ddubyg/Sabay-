@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -7,65 +7,16 @@ from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from .demo_data import seed_starter_activities
 from .models import Activity, Participation
 
 # Format used by <input type="datetime-local">.
 DATETIME_INPUT_FORMAT = '%Y-%m-%dT%H:%M'
 
 
-def _local_at(days_from_today, hour, minute=0):
-    day = timezone.localdate() + timedelta(days=days_from_today)
-    return timezone.make_aware(datetime.combine(day, time(hour, minute)))
-
-
 def get_or_seed_activities():
-    if Activity.objects.count() == 0:
-        initial_activities = [
-            {
-                'title': 'Study at Library',
-                'category': 'study',
-                'location': 'CIT-U Library 3F',
-                'starts_at': _local_at(1, 15),
-                'description': 'Reviewing for Midterm Exam in Algorithms and Data Structures. Bring your notes and laptop!',
-            },
-            {
-                'title': 'Pick-up Basketball Game',
-                'category': 'sports',
-                'location': 'Campus Gymnasium Court',
-                'starts_at': _local_at(1, 17),
-                'description': 'Casual 5v5 half-court or full-court games after class. All skill levels welcome!',
-            },
-            {
-                'title': 'Valorant 5-Stack Ranked',
-                'category': 'gaming',
-                'location': 'Discord / Online',
-                'starts_at': _local_at(1, 20),
-                'description': 'Ranked competitive climb tonight. Need 2 friendly chill teammates. Comms required!',
-            },
-            {
-                'title': 'Samgyup Lunch Treat',
-                'category': 'food',
-                'location': 'Korean BBQ Spot Near Campus',
-                'starts_at': _local_at(3, 12, 30),
-                'description': 'Unlimited samgyupsal buffet after our Friday classes. Splitting the bill evenly!',
-            },
-            {
-                'title': 'Carpool to IT Park',
-                'category': 'commute',
-                'location': 'CIT-U Main Gate',
-                'starts_at': _local_at(2, 17, 30),
-                'description': 'Heading towards IT Park / Lahug after afternoon classes. Safe, comfortable ride.',
-            },
-            {
-                'title': 'Coffee & Chill / Coding',
-                'category': 'hangout',
-                'location': 'Cafe Talk Lounge',
-                'starts_at': _local_at(4, 16),
-                'description': 'Quiet productive cafe session with iced lattes and chill beats. Working on personal coding tasks.',
-            },
-        ]
-        for item in initial_activities:
-            Activity.objects.create(**item)
+    if not Activity.objects.exists():
+        seed_starter_activities()
 
     # Upcoming only, soonest first (Activity.upcoming orders explicitly, which
     # matters because Meta.ordering is ignored on GROUP BY queries).
