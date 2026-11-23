@@ -848,3 +848,20 @@ body {
     font-weight: 700;
     text-decoration: none;
 }
+
+/* Friend-request count on the Friends nav link. */
+.nav-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 5px;
+    margin-left: 5px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    vertical-align: 1px;
+}

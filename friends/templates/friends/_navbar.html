@@ -1,0 +1,25 @@
+{% comment %}
+Shared top navigation. Pass `active` = home | profile | friends | settings.
+{% endcomment %}
+<nav class="navbar">
+
+    <a href="{% url 'home' %}" class="brand">
+        <div class="brand-icon">
+            <span>S</span>
+        </div>
+        <div class="brand-name">
+            Sabay?
+        </div>
+    </a>
+
+    <div class="nav-links">
+        <a href="{% url 'home' %}"{% if active == 'home' %} class="active"{% endif %}>Home</a>
+        <a href="{% url 'friends' %}"{% if active == 'friends' %} class="active"{% endif %}>
+            Friends{% if pending_friend_requests %}<span class="nav-badge" title="{{ pending_friend_requests }} friend request{{ pending_friend_requests|pluralize }}">{{ pending_friend_requests }}</span>{% endif %}
+        </a>
+        <a href="{% url 'profile' %}"{% if active == 'profile' %} class="active"{% endif %}>Profile</a>
+        <a href="{% url 'settings' %}"{% if active == 'settings' %} class="active"{% endif %}>Settings</a>
+        <a href="{% url 'logout' %}" class="logout">Logout</a>
+    </div>
+
+</nav>

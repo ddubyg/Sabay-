@@ -1,0 +1,34 @@
+{% comment %}
+Buttons for one person, depending on how they relate to the viewer.
+Needs: p (from friends.views._person), next (path to come back to).
+{% endcomment %}
+<div class="person-actions">
+    {% if p.state == 'none' %}
+        <form method="POST" action="{% url 'friend_add' p.id %}">
+            {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="fbtn primary">+ Add friend</button>
+        </form>
+    {% elif p.state == 'received' %}
+        <form method="POST" action="{% url 'friend_accept' p.id %}">
+            {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="fbtn primary">Accept</button>
+        </form>
+        <form method="POST" action="{% url 'friend_remove' p.id %}">
+            {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="fbtn ghost">Decline</button>
+        </form>
+    {% elif p.state == 'sent' %}
+        <span class="fstate">Requested</span>
+        <form method="POST" action="{% url 'friend_remove' p.id %}">
+            {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="fbtn ghost">Cancel</button>
+        </form>
+    {% elif p.state == 'friends' %}
+        <span class="fstate friends">&#10003; Friends</span>
+        <form method="POST" action="{% url 'friend_remove' p.id %}"
+              onsubmit="return confirm('Remove {{ p.username|escapejs }} from your friends?');">
+            {% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="fbtn ghost">Remove</button>
+        </form>
+    {% endif %}
+</div>

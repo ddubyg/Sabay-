@@ -1,0 +1,125 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Friends | Sabay?</title>
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('sabay_theme');
+            const serverTheme = "{{ user_settings.dark_mode|yesno:'dark,light' }}";
+            const isDark = (savedTheme === 'dark') || (savedTheme === null && serverTheme === 'dark');
+            document.documentElement.classList.toggle('dark-mode', isDark);
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        })();
+    </script>
+
+    <link rel="stylesheet" href="{% static 'home/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'friends/css/friends.css' %}">
+</head>
+
+<body>
+
+{% include 'friends/_navbar.html' with active='friends' %}
+
+<main class="friends-container">
+
+    {% for message in messages %}
+        <div class="flash {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+
+    <div class="friends-header">
+        <h1>Friends</h1>
+        <p>Add friends to see which activities they're joining.</p>
+    </div>
+
+
+    <!-- SEARCH -->
+    <form method="GET" action="{% url 'friends' %}" class="friend-search">
+        <input type="search" name="q" value="{{ query }}" placeholder="Search by username..." autocomplete="off" autofocus>
+        <button type="submit" class="fbtn primary">Search</button>
+    </form>
+
+    {% if query %}
+        <section class="fcard">
+            <div class="fsection-title">Results for "{{ query }}"</div>
+            {% for p in results %}
+                <div class="person">
+                    <div class="person-avatar">{{ p.initial }}</div>
+                    <div class="person-info">
+                        <div class="person-name">{{ p.username }}</div>
+                        <div class="person-sub">{{ p.subtitle }}</div>
+                    </div>
+                    {% include 'friends/_person_actions.html' with next=request.get_full_path %}
+                </div>
+            {% empty %}
+                <div class="fempty">
+                    {% if query|length < 2 %}Type at least 2 letters.{% else %}No one found with "{{ query }}" in their username.{% endif %}
+                </div>
+            {% endfor %}
+        </section>
+    {% endif %}
+
+
+    <!-- INCOMING -->
+    {% if received %}
+        <section class="fcard highlight">
+            <div class="fsection-title">Friend requests ({{ received|length }})</div>
+            {% for p in received %}
+                <div class="person">
+                    <div class="person-avatar">{{ p.initial }}</div>
+                    <div class="person-info">
+                        <div class="person-name">{{ p.username }}</div>
+                        <div class="person-sub">wants to be your friend</div>
+                    </div>
+                    {% include 'friends/_person_actions.html' with next=request.get_full_path %}
+                </div>
+            {% endfor %}
+        </section>
+    {% endif %}
+
+
+    <!-- FRIENDS -->
+    <section class="fcard">
+        <div class="fsection-title">Your friends ({{ friends|length }})</div>
+        {% for p in friends %}
+            <div class="person">
+                <div class="person-avatar">{{ p.initial }}</div>
+                <div class="person-info">
+                    <div class="person-name">{{ p.username }}</div>
+                    <div class="person-sub">{{ p.subtitle }}</div>
+                </div>
+                {% include 'friends/_person_actions.html' with next=request.get_full_path %}
+            </div>
+        {% empty %}
+            <div class="fempty">No friends yet. Search for a username above to add someone.</div>
+        {% endfor %}
+    </section>
+
+
+    <!-- SENT -->
+    {% if sent %}
+        <section class="fcard">
+            <div class="fsection-title">Waiting for them to accept ({{ sent|length }})</div>
+            {% for p in sent %}
+                <div class="person">
+                    <div class="person-avatar">{{ p.initial }}</div>
+                    <div class="person-info">
+                        <div class="person-name">{{ p.username }}</div>
+                        <div class="person-sub">{{ p.subtitle }}</div>
+                    </div>
+                    {% include 'friends/_person_actions.html' with next=request.get_full_path %}
+                </div>
+            {% endfor %}
+        </section>
+    {% endif %}
+
+</main>
+
+</body>
+</html>

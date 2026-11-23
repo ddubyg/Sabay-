@@ -30,4 +30,6 @@ urlpatterns = [
 
     path('settings/', include('settings_app.urls')),
 
+    path('friends/', include('friends.urls')),
+
 ]

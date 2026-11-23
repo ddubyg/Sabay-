@@ -382,42 +382,7 @@
      NAVBAR
 ======================================== -->
 
-<nav class="navbar">
-
-    <a href="{% url 'home' %}" class="brand">
-
-        <div class="brand-icon">
-            <span>S</span>
-        </div>
-
-        <div class="brand-name">
-            Sabay?
-        </div>
-
-    </a>
-
-
-    <div class="nav-links">
-
-        <a href="{% url 'home' %}" class="active">
-            Home
-        </a>
-
-        <a href="{% url 'profile' %}">
-            Profile
-        </a>
-
-        <a href="{% url 'settings' %}">
-            Settings
-        </a>
-
-        <a href="{% url 'logout' %}" class="logout">
-            Logout
-        </a>
-
-    </div>
-
-</nav>
+{% include 'friends/_navbar.html' with active='home' %}
 
 
 <!-- ========================================

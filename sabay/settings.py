@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'home',
     'user_profile',
     'settings_app',
+    'friends',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +73,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'settings_app.context_processors.user_settings_context',
+                'friends.context_processors.friend_requests_context',
             ],
         },
     },
