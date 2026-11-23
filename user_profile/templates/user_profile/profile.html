@@ -114,7 +114,7 @@
                             🎓 {% if profile.year_level %}{{ profile.year_level }}{% else %}Student{% endif %}
                         </span>
                         <span class="badge">
-                            ✨ Active Member
+                            {% if stats.joined or stats.hosted %}✨ Active Member{% else %}🌱 New to Sabay{% endif %}
                         </span>
                     </div>
 
@@ -133,17 +133,17 @@
         <div class="stats-grid">
 
             <div class="stat-card">
-                <div class="stat-number">4</div>
+                <div class="stat-number">{{ stats.joined }}</div>
                 <div class="stat-label">Activities Joined</div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-number">2</div>
+                <div class="stat-number">{{ stats.hosted }}</div>
                 <div class="stat-label">Activities Hosted</div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-number">12</div>
+                <div class="stat-number">{{ stats.companions }}</div>
                 <div class="stat-label">Sabay Companions</div>
             </div>
 
@@ -290,18 +290,22 @@
             </h2>
 
             <p class="card-description">
-                Your latest companion connections.
+                What you've hosted and joined lately.
             </p>
 
-            <div class="detail">
-                <div class="detail-label">Recently Joined</div>
-                <div class="detail-value">Study Session at CIT-U Library</div>
-            </div>
-
-            <div class="detail">
-                <div class="detail-label">Recently Hosted</div>
-                <div class="detail-value">Weekend Basketball at Campus Court</div>
-            </div>
+            {% for item in recent %}
+                <a href="{% url 'activity_detail' item.activity.id %}" class="detail recent-item">
+                    <div class="detail-label">
+                        {% if item.kind == 'hosted' %}Hosted{% else %}Joined{% endif %} · {{ item.ago }}
+                    </div>
+                    <div class="detail-value">{{ item.activity.title }}</div>
+                </a>
+            {% empty %}
+                <div class="recent-empty">
+                    Nothing yet. <a href="{% url 'home' %}">Find an activity to join</a> or
+                    <a href="{% url 'create_activity' %}">post your own</a>.
+                </div>
+            {% endfor %}
 
         </section>
 

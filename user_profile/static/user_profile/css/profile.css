@@ -817,3 +817,41 @@ body {
         padding: 24px;
     }
 }
+
+
+/* ========================================
+   RECENT ACTIVITY
+======================================== */
+
+.recent-item {
+    display: block;
+    text-decoration: none;
+    border-radius: 10px;
+    margin: 0 -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    transition: background 0.15s;
+}
+
+.recent-item:hover {
+    background: var(--detail-border);
+}
+
+.recent-item:hover .detail-value {
+    color: var(--primary);
+}
+
+.recent-empty {
+    padding: 16px;
+    border: 1px dashed var(--detail-border);
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.recent-empty a {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+}
