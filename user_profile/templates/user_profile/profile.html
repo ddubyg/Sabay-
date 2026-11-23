@@ -268,21 +268,24 @@
             </p>
 
 
-            <div class="interests" id="interests-container">
+            {% if interest_chips %}
+                <div class="interests" id="interests-container">
+                    {% for chip in interest_chips %}
+                        <span class="interest active">{{ chip.label }}</span>
+                    {% endfor %}
+                </div>
 
-                {% for chip in interest_chips %}
-                    <span class="interest {% if chip.active %}active{% endif %}">
-                        {{ chip.label }}
-                    </span>
-                {% endfor %}
-
-            </div>
-
-            <div style="margin-top: 20px;">
-                <a href="{% url 'edit_profile' %}" class="interests-edit-link">
-                    ⚙️ Manage interests in Edit Profile →
-                </a>
-            </div>
+                <div style="margin-top: 20px;">
+                    <a href="{% url 'edit_profile' %}" class="interests-edit-link">
+                        ⚙️ Change your interests →
+                    </a>
+                </div>
+            {% else %}
+                <div class="recent-empty">
+                    You haven't picked any interests yet.
+                    <a href="{% url 'edit_profile' %}">Add a few</a> so others know what you're down for.
+                </div>
+            {% endif %}
 
 
             <h2 style="margin-top: 28px;">

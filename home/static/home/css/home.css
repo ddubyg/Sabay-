@@ -555,7 +555,7 @@ body {
 
 @media (max-width: 600px) {
     .brand-name {
-        display: none;
+        font-size: 16px;
     }
 
     .nav-links {
@@ -642,4 +642,54 @@ body {
 .activity-button.is-joined {
     background: rgba(16, 185, 129, 0.12);
     color: #10b981;
+}
+
+/* ========================================
+   MOBILE: get activities above the fold
+======================================== */
+
+@media (max-width: 600px) {
+    .hero {
+        padding: 26px 22px;
+        border-radius: 20px;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+        line-height: 1.1;
+    }
+
+    .hero p {
+        font-size: 13px;
+        margin-top: 10px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .search-box {
+        margin-top: 18px;
+    }
+
+    /* One swipeable row of categories instead of three wrapped rows. */
+    .categories {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        margin: 0 -4%;
+        padding: 4px 4%;
+        scrollbar-width: none;
+    }
+
+    .categories::-webkit-scrollbar {
+        display: none;
+    }
+
+    .category {
+        flex-shrink: 0;
+    }
+
+    .section-header p {
+        display: none;
+    }
 }

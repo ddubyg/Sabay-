@@ -69,3 +69,17 @@ class SettingsAppTests(TestCase):
         settings = UserSettings.objects.get(user=self.user)
         self.assertTrue(settings.dark_mode)
         self.assertTrue(settings.notifications)
+
+
+class SettingsAutosaveTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth.models import User
+        User.objects.create_user(username='auto', password='password123')
+        self.client.login(username='auto', password='password123')
+
+    def test_page_has_no_save_button_and_wires_autosave(self):
+        response = self.client.get(reverse('settings'))
+        self.assertNotContains(response, 'Save Settings')
+        self.assertContains(response, 'Changes save automatically')
+        self.assertContains(response, reverse('toggle_theme'))
+        self.assertContains(response, reverse('toggle_notifications'))

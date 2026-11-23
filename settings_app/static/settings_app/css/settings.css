@@ -320,15 +320,6 @@ body {
     font-size: 13px;
     font-weight: 600;
 }
-    margin-bottom: 24px;
-    padding: 14px 18px;
-    border-radius: 12px;
-    background: rgba(16, 185, 129, 0.12);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    color: #10b981;
-    font-size: 13px;
-    font-weight: 600;
-}
 
 
 /* ========================================
@@ -412,7 +403,7 @@ body {
     }
 
     .brand-name {
-        display: none;
+        font-size: 16px;
     }
 
     .nav-links {
@@ -437,4 +428,37 @@ body {
         padding: 18px 20px;
         gap: 15px;
     }
+}
+
+
+/* ========================================
+   AUTOSAVE STATUS
+======================================== */
+
+.section-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.save-status {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--muted);
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+
+.save-status.visible {
+    opacity: 1;
+}
+
+.save-status.ok {
+    color: #10b981;
+}
+
+.save-status.error {
+    color: #ef4444;
 }

@@ -108,3 +108,21 @@ class ProfileStatsTests(TestCase):
         self.Participation.objects.create(activity=theirs, user=self.ben)
         stats = self.client.get(reverse('profile')).context['stats']
         self.assertEqual(stats, {'joined': 0, 'hosted': 0, 'companions': 0})
+
+
+class ProfileInterestsTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='vibes', password='password123')
+        self.client.login(username='vibes', password='password123')
+
+    def test_shows_only_chosen_interests(self):
+        Profile.objects.update_or_create(user=self.user, defaults={'interests': ['gaming', 'food']})
+        response = self.client.get(reverse('profile'))
+        self.assertEqual([c['key'] for c in response.context['interest_chips']], ['gaming', 'food'])
+        self.assertContains(response, 'Gaming')
+        self.assertNotContains(response, 'Movie Night')
+
+    def test_no_interests_shows_prompt(self):
+        response = self.client.get(reverse('profile'))
+        self.assertContains(response, "haven't picked any interests yet")
+        self.assertNotContains(response, 'Movie Night')

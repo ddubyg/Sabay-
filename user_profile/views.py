@@ -67,9 +67,11 @@ def recent_activity(user, limit=RECENT_LIMIT):
 def profile_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     saved_interests = profile.interests or []
+    # Only what the user picked, in the standard order.
     interest_chips = [
-        {'key': key, 'label': label, 'active': key in saved_interests}
+        {'key': key, 'label': label}
         for key, label in ALL_INTERESTS
+        if key in saved_interests
     ]
     return render(request, 'user_profile/profile.html', {
         'profile': profile,

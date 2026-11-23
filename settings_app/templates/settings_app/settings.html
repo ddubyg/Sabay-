@@ -85,7 +85,7 @@
         </h1>
 
         <p>
-            Manage your Sabay? preferences and account experience.
+            Manage your Sabay? preferences and account experience. Changes save automatically.
         </p>
 
     </div>
@@ -124,7 +124,10 @@
 
 
     <!-- PREFERENCES FORM -->
-    <div class="section-label">Preferences</div>
+    <div class="section-label">
+        Preferences
+        <span class="save-status" id="save-status" role="status" aria-live="polite"></span>
+    </div>
 
     <form method="POST" id="settings-form" action="{% url 'settings' %}">
 
@@ -195,68 +198,64 @@
 
         </section>
 
-        <button type="submit" class="save-button" id="save-settings-btn">
-            Save Settings
-        </button>
-
     </form>
 
 </main>
 
 
 <script>
-    const darkToggle = document.getElementById('dark-mode-toggle');
-    const notifToggle = document.getElementById('notifications-toggle');
-    const settingsForm = document.getElementById('settings-form');
+    // Each toggle saves itself as soon as it changes; there is no Save button.
+    const csrfToken = document.querySelector('#settings-form [name=csrfmiddlewaretoken]').value;
+    const statusEl = document.getElementById('save-status');
+    let statusTimer = null;
 
-    // Track whether user changed something without saving
-    let unsavedChanges = false;
-
-    function applyTheme(isDark) {
-        if (isDark) {
-            document.documentElement.classList.add('dark-mode');
-            document.documentElement.setAttribute('data-theme', 'dark');
-            document.body.classList.add('dark-mode');
-        } else {
-            document.documentElement.classList.remove('dark-mode');
-            document.documentElement.setAttribute('data-theme', 'light');
-            document.body.classList.remove('dark-mode');
+    function showStatus(text, kind) {
+        statusEl.textContent = text;
+        statusEl.className = 'save-status visible ' + (kind || '');
+        clearTimeout(statusTimer);
+        if (kind !== 'error') {
+            statusTimer = setTimeout(() => statusEl.classList.remove('visible'), 1800);
         }
     }
 
-    // Toggle preview on change without saving yet
-    darkToggle.addEventListener('change', function() {
-        applyTheme(this.checked);
-        unsavedChanges = true;
-    });
+    function applyTheme(isDark) {
+        const root = document.documentElement;
+        root.classList.toggle('dark-mode', isDark);
+        root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        document.body.classList.toggle('dark-mode', isDark);
+        localStorage.setItem('sabay_theme', isDark ? 'dark' : 'light');
+    }
 
-    notifToggle.addEventListener('change', function() {
-        unsavedChanges = true;
-    });
-
-    // On form submit: clear unsaved flag, persist to localStorage
-    settingsForm.addEventListener('submit', function() {
-        unsavedChanges = false;
-        localStorage.setItem('sabay_theme', darkToggle.checked ? 'dark' : 'light');
-    });
-
-    // Warn user if they try to navigate away with unsaved changes
-    window.addEventListener('beforeunload', function(e) {
-        if (unsavedChanges) {
-            e.preventDefault();
-            e.returnValue = 'You have unsaved settings. Are you sure you want to leave?';
+    async function saveToggle(input, url, key, onChange) {
+        const value = input.checked;
+        onChange && onChange(value);
+        showStatus('Saving…');
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify({ [key]: value }),
+            });
+            if (!res.ok) throw new Error(res.status);
+            showStatus('Saved ✓', 'ok');
+        } catch (err) {
+            // Put the switch back so it never shows a state the server didn't keep.
+            input.checked = !value;
+            onChange && onChange(!value);
+            showStatus("Couldn't save. Check your connection and try again.", 'error');
         }
+    }
+
+    document.getElementById('dark-mode-toggle').addEventListener('change', function () {
+        saveToggle(this, "{% url 'toggle_theme' %}", 'dark_mode', applyTheme);
     });
 
-    // On page load after save: sync localStorage with the saved server value
-    // (In case page reloaded after POST redirect)
-    (function() {
-        const serverDark = {% if user_settings.dark_mode %}true{% else %}false{% endif %};
-        // Only sync if no explicit localStorage choice
-        if (localStorage.getItem('sabay_theme') !== null) {
-            // Already have local preference — keep it in sync with form state on load
-        }
-    })();
+    document.getElementById('notifications-toggle').addEventListener('change', function () {
+        saveToggle(this, "{% url 'toggle_notifications' %}", 'notifications');
+    });
+
+    // Without JS the form can't be submitted (no button), so stop Enter from doing a full POST either.
+    document.getElementById('settings-form').addEventListener('submit', (e) => e.preventDefault());
 </script>
 
 
