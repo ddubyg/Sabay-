@@ -34,8 +34,13 @@ def home_view(request):
     friend_labels = friends_activity_labels(request.user, activities)
     for activity in activities:
         activity.friends_label = friend_labels.get(activity.id, '')
+
+    # Things you're joining or hosting go in "Your plans" at the top
+    # instead of the main feed, so nothing shows twice.
+    mine = lambda a: a.id in joined_ids or a.creator_id == request.user.id
     return render(request, 'home/home.html', {
-        'activities': activities,
+        'my_plans': [a for a in activities if mine(a)],
+        'activities': [a for a in activities if not mine(a)],
         'joined_ids': joined_ids,
     })
 

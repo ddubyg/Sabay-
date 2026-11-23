@@ -855,3 +855,62 @@ body {
     font-size: 12px;
     font-weight: 700;
 }
+
+
+/* ========================================
+   YOUR PLANS (glowing reminder cards)
+======================================== */
+
+.activity.plan {
+    position: relative;
+    border-color: rgba(139, 124, 246, 0.6);
+    animation: plan-glow 2.8s ease-in-out infinite;
+}
+
+.activity.plan::before {
+    content: "You're in";
+    position: absolute;
+    top: -10px;
+    right: 18px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+@keyframes plan-glow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(139, 124, 246, 0.25), 0 8px 24px rgba(108, 92, 231, 0.12); }
+    50%      { box-shadow: 0 0 0 4px rgba(139, 124, 246, 0.22), 0 10px 34px rgba(108, 92, 231, 0.32); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .activity.plan {
+        animation: none;
+        box-shadow: 0 0 0 3px rgba(139, 124, 246, 0.25), var(--card-shadow);
+    }
+}
+
+/* Five nav links must fit a 375px phone without sideways scrolling. */
+@media (max-width: 600px) {
+    .nav-links {
+        gap: 0;
+    }
+
+    .nav-links a {
+        padding: 8px 5px;
+    }
+
+    .nav-badge {
+        margin-left: 3px;
+    }
+}
+
+@media (max-width: 360px) {
+    .brand-name {
+        display: none;
+    }
+}

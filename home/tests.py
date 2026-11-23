@@ -110,7 +110,7 @@ class JoinLeaveTests(TestCase):
     def test_home_feed_shows_real_going_count(self):
         self.client.post(self.join_url)
         response = self.client.get(reverse('home'))
-        card = next(a for a in response.context['activities'] if a.pk == self.activity.pk)
+        card = next(a for a in response.context['my_plans'] if a.pk == self.activity.pk)
         self.assertEqual(card.going_count, 2)
 
 
@@ -211,7 +211,8 @@ class HostManageTests(TestCase):
             title='Sooner', category='study', location='Lib', starts_at=in_hours(2),
             description='', creator=self.other,
         )
-        self.client.login(username='other', password='password123')
+        viewer = User.objects.create_user(username='viewer', password='password123')
+        self.client.force_login(viewer)
         titles = [a.title for a in self.client.get(reverse('home')).context['activities']]
         self.assertEqual(titles, [sooner.title, self.activity.title])
 
@@ -320,3 +321,41 @@ class ReseedDemoTests(TestCase):
         self.assertEqual(Participation.objects.count(), 1)
         self.run('--clear-joins')
         self.assertEqual(Participation.objects.count(), 0)
+
+
+class YourPlansTests(TestCase):
+    def setUp(self):
+        self.me = User.objects.create_user(username='me', password='password123')
+        self.other = User.objects.create_user(username='other', password='password123')
+        self.client.force_login(self.me)
+
+    def make(self, title, hours, creator):
+        return Activity.objects.create(
+            title=title, category='study', location='Lib', starts_at=in_hours(hours),
+            description='', creator=creator,
+        )
+
+    def test_joined_and_hosted_go_to_plans_soonest_first_and_not_the_feed(self):
+        later_joined = self.make('Joined later', 30, self.other)
+        Participation.objects.create(activity=later_joined, user=self.me)
+        self.make('Hosting soon', 5, self.me)
+        self.make('Not mine', 10, self.other)
+
+        ctx = self.client.get(reverse('home')).context
+        self.assertEqual([a.title for a in ctx['my_plans']], ['Hosting soon', 'Joined later'])
+        self.assertEqual([a.title for a in ctx['activities']], ['Not mine'])
+
+    def test_plans_section_glows_and_hides_when_empty(self):
+        self.make('Not mine', 10, self.other)
+        page = self.client.get(reverse('home'))
+        self.assertNotContains(page, 'Your plans')
+
+        Participation.objects.create(activity=Activity.objects.get(), user=self.me)
+        page = self.client.get(reverse('home'))
+        self.assertContains(page, 'Your plans')
+        self.assertContains(page, 'class="activity plan"')
+
+    def test_ended_plans_drop_off(self):
+        ended = self.make('Ended', -3, self.other)
+        Participation.objects.create(activity=ended, user=self.me)
+        self.assertEqual(self.client.get(reverse('home')).context['my_plans'], [])

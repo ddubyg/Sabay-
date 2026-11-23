@@ -103,6 +103,28 @@
     </section>
 
 
+    <!-- YOUR PLANS -->
+
+    {% if my_plans %}
+    <section class="section plans-section">
+
+        <div class="section-header">
+            <div>
+                <h2>✨ Your plans</h2>
+                <p>What you're joining or hosting, soonest first.</p>
+            </div>
+        </div>
+
+        <div class="activities">
+            {% for activity in my_plans %}
+                {% include 'home/_activity_card.html' with plan=True %}
+            {% endfor %}
+        </div>
+
+    </section>
+    {% endif %}
+
+
     <!-- CATEGORIES -->
 
     <section class="section">
@@ -187,84 +209,7 @@
         <div class="activities" id="activities-grid">
 
             {% for activity in activities %}
-
-                <div class="activity"
-                     data-category="{{ activity.category|lower }}"
-                     data-title="{{ activity.title }}"
-                     data-location="{{ activity.location }}"
-                     data-time="{{ activity.when_label }}"
-                     data-desc="{{ activity.description }}">
-
-                    <div>
-
-                        <div class="activity-top">
-
-                            <span class="activity-category">
-                                {{ activity.category|title }}
-                            </span>
-
-                            <span class="activity-time-tag">
-                                ◷ {{ activity.when_label }}
-                            </span>
-
-                        </div>
-
-                        <h3>
-                            {{ activity.title }}
-                        </h3>
-
-                        <div class="activity-host">
-                            {% if activity.creator %}
-                                <span class="activity-host-avatar">{{ activity.creator.username|first|upper }}</span>
-                                {% if activity.creator == request.user %}
-                                    <span><strong>You</strong> are hosting</span>
-                                {% else %}
-                                    <span>Hosted by <strong>{{ activity.creator.username }}</strong></span>
-                                {% endif %}
-                            {% else %}
-                                <span class="activity-host-avatar">S</span>
-                                <span>Posted by <strong>Sabay</strong></span>
-                            {% endif %}
-                        </div>
-
-                        {% if activity.friends_label %}
-                            <div class="friends-going">👋 {{ activity.friends_label }}</div>
-                        {% endif %}
-
-                        <p class="activity-desc">
-                            {{ activity.description }}
-                        </p>
-
-                        <div class="activity-info">
-
-                            <span>
-                                ◉ <span class="participant-count">{{ activity.going_count }}</span> going
-                            </span>
-
-                            <span>
-                                ◈ {{ activity.location }}
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                    {% if activity.creator == request.user %}
-                        <a href="{% url 'activity_detail' activity.id %}" class="activity-button join-card-btn is-host">
-                            Manage your post
-                        </a>
-                    {% elif activity.id in joined_ids %}
-                        <a href="{% url 'activity_detail' activity.id %}" class="activity-button join-card-btn is-joined">
-                            ✓ You're going
-                        </a>
-                    {% else %}
-                        <a href="{% url 'activity_detail' activity.id %}" class="activity-button join-card-btn">
-                            View & Join
-                        </a>
-                    {% endif %}
-
-                </div>
-
+                {% include 'home/_activity_card.html' %}
             {% endfor %}
 
         </div>
