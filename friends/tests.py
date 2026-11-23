@@ -115,3 +115,10 @@ class FriendFlowTests(TestCase):
         home = self.client.get(reverse('home'))
         self.assertContains(home, reverse('friends'))
         self.assertContains(home, 'class="nav-badge"')
+
+    def test_home_has_people_panel_wired_to_search(self):
+        self.login(self.a)
+        home = self.client.get(reverse('home'))
+        self.assertContains(home, 'id="people-panel"')
+        self.assertContains(home, reverse('friends_search_json'))
+        self.assertContains(home, 'csrfmiddlewaretoken')

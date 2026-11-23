@@ -76,7 +76,7 @@
                 <input
                     type="text"
                     id="search-input"
-                    placeholder="Search activities by keyword, category, or location..."
+                    placeholder="Search activities or people by username..."
                     autocomplete="off"
                 >
 
@@ -84,6 +84,22 @@
 
         </div>
 
+    </section>
+
+
+    <!-- PEOPLE (filled by home.js when the search matches usernames) -->
+
+    <section class="people-panel" id="people-panel" hidden
+             data-search-url="{% url 'friends_search_json' %}"
+             data-add-url="{% url 'friend_add' 0 %}"
+             data-accept-url="{% url 'friend_accept' 0 %}"
+             data-remove-url="{% url 'friend_remove' 0 %}">
+        <div class="people-panel-head">
+            <span class="people-panel-title">People</span>
+            <a href="{% url 'friends' %}" class="people-panel-link">All friends &rarr;</a>
+        </div>
+        <div id="people-results"></div>
+        <span hidden id="people-csrf">{% csrf_token %}</span>
     </section>
 
 
