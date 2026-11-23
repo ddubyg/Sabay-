@@ -269,7 +269,57 @@
             box-shadow: 0 12px 28px rgba(108, 92, 231, 0.4);
         }
 
+        .companion-badge.host {
+            background: rgba(108, 92, 231, 0.12);
+            color: var(--primary-dark);
+        }
+
+        .companion-badge.you {
+            background: rgba(245, 158, 11, 0.12);
+            color: #d97706;
+        }
+
+        .companions-empty {
+            padding: 16px;
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .leave-btn {
+            padding: 0 24px;
+            height: 50px;
+            border-radius: 14px;
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .leave-btn:hover {
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .hosting-pill {
+            padding: 12px 20px;
+            border-radius: 14px;
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--primary-dark);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
         @media (max-width: 600px) {
+            .leave-btn {
+                width: 100%;
+            }
+
             .info-grid {
                 grid-template-columns: 1fr;
             }
@@ -388,7 +438,7 @@
                     📍 {{ activity.location }}
                 </span>
                 <span class="detail-meta-item">
-                    👥 {{ activity.participants_count }} companion{{ activity.participants_count|pluralize }}
+                    👥 {{ activity.going_count }} going
                 </span>
             </div>
 
@@ -433,46 +483,78 @@
                     <span class="info-chip-icon">👥</span>
                     <div>
                         <div class="info-chip-label">Going So Far</div>
-                        <div class="info-chip-value">{{ activity.participants_count }} companion{{ activity.participants_count|pluralize }}</div>
+                        <div class="info-chip-value">{{ activity.going_count }} student{{ activity.going_count|pluralize }}</div>
                     </div>
                 </div>
 
             </div>
 
 
-            {% if companions %}
             <div class="companions-section">
-                <div class="detail-section-title">Who's Going ({{ companions|length }})</div>
+                <div class="detail-section-title">Who's Going ({{ activity.going_count }})</div>
                 <div class="companions-list">
-                    {% for initial, name, course in companions %}
+                    {% if activity.creator %}
                         <div class="companion-row">
-                            <div class="companion-avatar">{{ initial }}</div>
+                            <div class="companion-avatar">{{ activity.creator.username|first|upper }}</div>
                             <div>
-                                <div class="companion-name">{{ name }}</div>
-                                <div class="companion-course">{{ course }}</div>
+                                <div class="companion-name">{{ activity.creator.username }}</div>
+                                <div class="companion-course">{% firstof activity.creator.profile.course "Sabay member" %}{% if activity.creator.profile.year_level %}, {{ activity.creator.profile.year_level }}{% endif %}</div>
                             </div>
-                            <span class="companion-badge">✓ Joined</span>
+                            <span class="companion-badge host">★ Host</span>
                         </div>
+                    {% endif %}
+                    {% for p in participations %}
+                        <div class="companion-row">
+                            <div class="companion-avatar">{{ p.user.username|first|upper }}</div>
+                            <div>
+                                <div class="companion-name">{{ p.user.username }}</div>
+                                <div class="companion-course">{% firstof p.user.profile.course "Sabay member" %}{% if p.user.profile.year_level %}, {{ p.user.profile.year_level }}{% endif %}</div>
+                            </div>
+                            {% if p.user == request.user %}
+                                <span class="companion-badge you">You</span>
+                            {% else %}
+                                <span class="companion-badge">✓ Joined</span>
+                            {% endif %}
+                        </div>
+                    {% empty %}
+                        <div class="companions-empty">No one has joined yet. Be the first!</div>
                     {% endfor %}
                 </div>
             </div>
-            {% endif %}
 
         </div>
 
 
         <!-- JOIN SECTION -->
         <div class="join-section">
-            <div class="join-info">
-                <strong>{{ activity.participants_count }} student{{ activity.participants_count|pluralize }}</strong> already going. Be their companion!
-            </div>
-            <form method="POST" action="{% url 'activity_detail' activity.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="join">
-                <button type="submit" class="join-btn">
-                    🎉 Join This Activity
-                </button>
-            </form>
+            {% if is_host %}
+                <div class="join-info">
+                    You're hosting this. <strong>{{ participations|length }}</strong> {{ participations|length|pluralize:"person has,people have" }} joined so far.
+                </div>
+                <span class="hosting-pill">★ You're the host</span>
+            {% elif has_joined %}
+                <div class="join-info">
+                    <strong>You're going!</strong> Plans changed? You can leave anytime.
+                </div>
+                <form method="POST" action="{% url 'leave_activity' activity.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="leave-btn">Leave Activity</button>
+                </form>
+            {% else %}
+                <div class="join-info">
+                    {% if activity.going_count %}
+                        <strong>{{ activity.going_count }} student{{ activity.going_count|pluralize }}</strong> already going. Be their companion!
+                    {% else %}
+                        Nobody's going yet. <strong>Be the first!</strong>
+                    {% endif %}
+                </div>
+                <form method="POST" action="{% url 'join_activity' activity.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="join-btn">
+                        🎉 Join This Activity
+                    </button>
+                </form>
+            {% endif %}
         </div>
 
     </div>
