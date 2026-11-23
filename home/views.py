@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.db.models import Count
+from django.db.models import Count, Subquery
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -67,6 +67,54 @@ def activity_detail_view(request, pk):
         'is_host': activity.is_host(request.user),
         'has_joined': any(p.user_id == request.user.id for p in participations),
         'emoji': CATEGORY_EMOJIS.get(activity.category.lower(), '🎯'),
+    })
+
+
+def _sql_of(queryset):
+    """The SQL Django will run for `queryset`, also printed to the terminal."""
+    sql = str(queryset.query)
+    print(f'\n--- SQL ---\n{sql}\n')
+    return sql
+
+
+@login_required
+def whos_going_view(request):
+    """JOIN: every join, with who joined and which activity.
+
+    home_participation holds only IDs (user_id, activity_id).
+    select_related('user', 'activity') makes Django INNER JOIN auth_user and
+    home_activity in the same query, so the names come back in one trip.
+    """
+    participations = (
+        Participation.objects
+        .select_related('user', 'activity')
+        .only('joined_at', 'user__username',
+              'activity__title', 'activity__category', 'activity__location')
+        .order_by('-joined_at')
+    )
+    return render(request, 'home/whos_going.html', {
+        'participations': participations,
+        'sql': _sql_of(participations),
+    })
+
+
+@login_required
+def needs_people_view(request):
+    """SUBQUERY: upcoming activities that nobody has joined yet.
+
+    Inner query: the activity IDs that appear in home_participation.
+    Outer query: upcoming activities whose ID is NOT IN that list.
+    """
+    joined_activity_ids = Participation.objects.values('activity_id')
+    activities = Activity.upcoming().exclude(id__in=Subquery(joined_activity_ids))
+    sql = _sql_of(activities)
+
+    activities = list(activities)
+    for activity in activities:
+        activity.emoji = CATEGORY_EMOJIS.get(activity.category.lower(), '🎯')
+    return render(request, 'home/needs_people.html', {
+        'activities': activities,
+        'sql': sql,
     })
 
 

@@ -1,0 +1,71 @@
+{% load static sabay_static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Needs People | Sabay?</title>
+
+    {% include 'partials/theme_head.html' %}
+
+    <link rel="stylesheet" href="{% vstatic 'home/css/home.css' %}">
+    <link rel="stylesheet" href="{% vstatic 'home/css/reports.css' %}">
+</head>
+
+<body>
+
+{% include 'friends/_navbar.html' with active='needs_people' %}
+
+<main class="report-container">
+
+    <div class="report-header">
+        <h1>🙋 Needs people</h1>
+        <p>Upcoming activities nobody has joined yet. Be the first to join!</p>
+    </div>
+
+    <!-- SUBQUERY: upcoming activities whose id is NOT IN (activity ids in home_participation) -->
+    <div class="report-card">
+        <table class="report-table">
+            <tr>
+                <th>Activity</th>
+                <th>Category</th>
+                <th>When</th>
+                <th>Where</th>
+                <th></th>
+            </tr>
+
+            {% for activity in activities %}
+            <tr>
+                <td><strong>{{ activity.title }}</strong></td>
+                <td>{{ activity.emoji }} {{ activity.category|capfirst }}</td>
+                <td>{{ activity.when_label }}</td>
+                <td class="muted">{{ activity.location }}</td>
+                <td><a href="{% url 'activity_detail' activity.id %}" class="join-btn">Be the first</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="report-empty">Every upcoming activity has at least one person going. 🎉</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <p class="report-count">{{ activities|length }} activit{{ activities|length|pluralize:"y,ies" }} with no one joined yet.</p>
+
+    <details class="sql-box">
+        <summary>Show the SQL (SUBQUERY)</summary>
+        <p>
+            Inner query: <code>Participation.objects.values('activity_id')</code> gets the IDs of activities that someone joined.<br>
+            Outer query: <code>Activity.upcoming().exclude(id__in=Subquery(...))</code> keeps upcoming activities whose ID is
+            <strong>NOT IN</strong> that list.
+        </p>
+        <pre>{{ sql }}</pre>
+    </details>
+
+</main>
+
+</body>
+</html>

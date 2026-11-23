@@ -1,0 +1,149 @@
+/* Who's Going (JOIN) and Needs People (SUBQUERY). Variables and navbar come from home.css. */
+
+.report-container {
+    width: min(960px, 92%);
+    margin: 0 auto;
+    padding: 45px 0 80px;
+}
+
+.report-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--text);
+}
+
+.report-header p {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.report-card {
+    margin-top: 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+    overflow-x: auto;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.report-table th {
+    text-align: left;
+    padding: 14px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.report-table td {
+    padding: 14px 18px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.report-table tr:last-child td {
+    border-bottom: none;
+}
+
+.report-table a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.report-table a:hover {
+    text-decoration: underline;
+}
+
+.report-table .muted {
+    color: var(--muted);
+}
+
+.source-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-transform: none;
+    background: var(--tag-bg);
+    color: var(--tag-color);
+}
+
+.report-empty {
+    padding: 28px 18px;
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+}
+
+.report-count {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.sql-box {
+    margin-top: 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 20px;
+}
+
+.sql-box summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.sql-box p {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.sql-box pre {
+    margin-top: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #14131f;
+    color: #e6e3ff;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.join-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: var(--primary);
+    color: white !important;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+.join-btn:hover {
+    background: var(--primary-dark);
+}
