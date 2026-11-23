@@ -83,3 +83,28 @@ class SettingsAutosaveTests(TestCase):
         self.assertContains(response, 'Changes save automatically')
         self.assertContains(response, reverse('toggle_theme'))
         self.assertContains(response, reverse('toggle_notifications'))
+
+
+class ThemePerAccountTests(TestCase):
+    """The theme comes from the logged-in account, never from browser storage."""
+
+    def setUp(self):
+        from django.contrib.auth.models import User
+        self.dark = User.objects.create_user(username='darkuser', password='password123')
+        self.light = User.objects.create_user(username='lightuser', password='password123')
+        UserSettings.objects.create(user=self.dark, dark_mode=True)
+
+    def test_each_account_gets_its_own_theme(self):
+        for name in ['home', 'profile', 'settings', 'friends']:
+            self.client.force_login(self.dark)
+            self.assertContains(self.client.get(reverse(name)), 'const isDark = true;')
+            self.client.force_login(self.light)
+            page = self.client.get(reverse(name))
+            self.assertContains(page, 'const isDark = false;')
+            self.assertNotContains(page, "getItem('sabay_theme')")
+
+    def test_css_links_are_versioned(self):
+        self.client.force_login(self.light)
+        page = self.client.get(reverse('home')).content.decode()
+        self.assertRegex(page, r'/static/home/css/home\.css\?v=\d+')
+        self.assertRegex(page, r'/static/home/js/home\.js\?v=\d+')

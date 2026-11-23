@@ -1,0 +1,13 @@
+{% comment %}
+Sets light/dark before the page paints, from the logged-in account's own
+setting. It deliberately does not read localStorage: that is shared by
+everyone using the browser, so one account's choice leaked into the next.
+{% endcomment %}
+<script>
+    (function () {
+        const isDark = {{ user_settings.dark_mode|yesno:'true,false' }};
+        document.documentElement.classList.toggle('dark-mode', isDark);
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        try { localStorage.removeItem('sabay_theme'); } catch (e) {}
+    })();
+</script>

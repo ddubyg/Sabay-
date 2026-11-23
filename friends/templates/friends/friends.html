@@ -1,4 +1,4 @@
-{% load static %}
+{% load static sabay_static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,18 +9,10 @@
 
     <title>Friends | Sabay?</title>
 
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('sabay_theme');
-            const serverTheme = "{{ user_settings.dark_mode|yesno:'dark,light' }}";
-            const isDark = (savedTheme === 'dark') || (savedTheme === null && serverTheme === 'dark');
-            document.documentElement.classList.toggle('dark-mode', isDark);
-            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-        })();
-    </script>
+    {% include 'partials/theme_head.html' %}
 
-    <link rel="stylesheet" href="{% static 'home/css/home.css' %}">
-    <link rel="stylesheet" href="{% static 'friends/css/friends.css' %}">
+    <link rel="stylesheet" href="{% vstatic 'home/css/home.css' %}">
+    <link rel="stylesheet" href="{% vstatic 'friends/css/friends.css' %}">
 </head>
 
 <body>

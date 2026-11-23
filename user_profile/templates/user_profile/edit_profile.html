@@ -1,4 +1,4 @@
-{% load static %}
+{% load static sabay_static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -9,22 +9,9 @@
 
     <title>Edit Profile | Sabay?</title>
 
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('sabay_theme');
-            const serverTheme = "{{ user_settings.dark_mode|yesno:'dark,light' }}";
-            const isDark = (savedTheme === 'dark') || (savedTheme === null && serverTheme === 'dark');
-            if (isDark) {
-                document.documentElement.classList.add('dark-mode');
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else {
-                document.documentElement.classList.remove('dark-mode');
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-        })();
-    </script>
+    {% include 'partials/theme_head.html' %}
 
-    <link rel="stylesheet" href="{% static 'user_profile/css/profile.css' %}">
+    <link rel="stylesheet" href="{% vstatic 'user_profile/css/profile.css' %}">
 </head>
 
 <body>
