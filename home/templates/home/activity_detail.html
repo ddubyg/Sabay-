@@ -274,6 +274,11 @@
             color: var(--primary-dark);
         }
 
+        .companion-badge.friend {
+            background: rgba(236, 72, 153, 0.12);
+            color: #db2777;
+        }
+
         .companion-badge.you {
             background: rgba(245, 158, 11, 0.12);
             color: #d97706;
@@ -494,7 +499,7 @@
                                 <div class="companion-name">{{ activity.creator.username }}</div>
                                 <div class="companion-course">{% firstof activity.creator.profile.course "Sabay member" %}{% if activity.creator.profile.year_level %}, {{ activity.creator.profile.year_level }}{% endif %}</div>
                             </div>
-                            <span class="companion-badge host">★ Host</span>
+                            <span class="companion-badge host">★ Host{% if activity.creator_id in friend_ids %} · Friend{% endif %}</span>
                         </div>
                     {% endif %}
                     {% for p in participations %}
@@ -506,6 +511,8 @@
                             </div>
                             {% if p.user == request.user %}
                                 <span class="companion-badge you">You</span>
+                            {% elif p.user_id in friend_ids %}
+                                <span class="companion-badge friend">★ Friend</span>
                             {% else %}
                                 <span class="companion-badge">✓ Joined</span>
                             {% endif %}

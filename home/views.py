@@ -7,6 +7,8 @@ from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from friends.services import friend_ids, friends_activity_labels
+
 from .demo_data import seed_starter_activities
 from .models import Activity, Participation
 
@@ -25,10 +27,13 @@ def get_or_seed_activities():
 
 @login_required
 def home_view(request):
-    activities = get_or_seed_activities().select_related('creator')
+    activities = list(get_or_seed_activities().select_related('creator'))
     joined_ids = set(
         Participation.objects.filter(user=request.user).values_list('activity_id', flat=True)
     )
+    friend_labels = friends_activity_labels(request.user, activities)
+    for activity in activities:
+        activity.friends_label = friend_labels.get(activity.id, '')
     return render(request, 'home/home.html', {
         'activities': activities,
         'joined_ids': joined_ids,
@@ -53,6 +58,7 @@ def activity_detail_view(request, pk):
     return render(request, 'home/activity_detail.html', {
         'activity': activity,
         'participations': participations,
+        'friend_ids': friend_ids(request.user),
         'is_host': activity.is_host(request.user),
         'has_joined': any(p.user_id == request.user.id for p in participations),
         'emoji': CATEGORY_EMOJIS.get(activity.category.lower(), '🎯'),

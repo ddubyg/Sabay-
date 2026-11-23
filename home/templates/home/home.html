@@ -227,6 +227,10 @@
                             {% endif %}
                         </div>
 
+                        {% if activity.friends_label %}
+                            <div class="friends-going">👋 {{ activity.friends_label }}</div>
+                        {% endif %}
+
                         <p class="activity-desc">
                             {{ activity.description }}
                         </p>

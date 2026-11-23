@@ -93,3 +93,44 @@ def search_users(user, query, limit=8):
         .select_related('profile')
         .order_by('username')[:limit]
     )
+
+
+def _names_phrase(names):
+    if len(names) == 1:
+        return f'{names[0]} is going'
+    if len(names) == 2:
+        return f'{names[0]} and {names[1]} are going'
+    return f'{names[0]}, {names[1]} +{len(names) - 2} more are going'
+
+
+def friends_activity_labels(user, activities):
+    """{activity.id: 'ben is going'} for activities your friends host or joined.
+
+    Two queries total, whatever the number of activities.
+    """
+    from home.models import Participation  # avoid an import cycle at load time
+
+    ids = friend_ids(user)
+    if not ids:
+        return {}
+    activities = list(activities)
+    by_activity = {}
+    joins = (
+        Participation.objects
+        .filter(activity_id__in=[a.id for a in activities], user_id__in=ids)
+        .select_related('user')
+        .order_by('joined_at')
+    )
+    for p in joins:
+        by_activity.setdefault(p.activity_id, []).append(p.user.username)
+
+    labels = {}
+    for a in activities:
+        parts = []
+        if a.creator_id in ids:
+            parts.append(f'{a.creator.username} is hosting')
+        if a.id in by_activity:
+            parts.append(_names_phrase(by_activity[a.id]))
+        if parts:
+            labels[a.id] = ' \u00b7 '.join(parts)
+    return labels

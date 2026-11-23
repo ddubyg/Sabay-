@@ -122,3 +122,70 @@ class FriendFlowTests(TestCase):
         self.assertContains(home, 'id="people-panel"')
         self.assertContains(home, reverse('friends_search_json'))
         self.assertContains(home, 'csrfmiddlewaretoken')
+
+
+class FriendsGoingTests(TestCase):
+    def setUp(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from home.models import Activity
+        self.Activity = Activity
+        self.soon = timezone.now() + timedelta(days=1)
+        self.me = User.objects.create_user(username='me', password='pw-123456')
+        self.ben = User.objects.create_user(username='ben', password='pw-123456')
+        self.ana = User.objects.create_user(username='ana', password='pw-123456')
+        self.cy = User.objects.create_user(username='cy', password='pw-123456')
+        self.dee = User.objects.create_user(username='dee', password='pw-123456')
+        self.stranger = User.objects.create_user(username='stranger', password='pw-123456')
+        for friend in (self.ben, self.ana, self.cy, self.dee):
+            services.send_request(self.me, friend)
+            services.accept_request(friend, self.me)
+        self.client.force_login(self.me)
+
+    def make(self, title, creator=None):
+        return self.Activity.objects.create(
+            title=title, category='study', location='Lib', starts_at=self.soon,
+            description='', creator=creator,
+        )
+
+    def join(self, activity, *users):
+        from home.models import Participation
+        for u in users:
+            Participation.objects.create(activity=activity, user=u)
+
+    def card_labels(self):
+        response = self.client.get(reverse('home'))
+        return {a.title: a.friends_label for a in response.context['activities']}
+
+    def test_labels_for_one_two_many_and_hosting(self):
+        one, two, many = self.make('One'), self.make('Two'), self.make('Many')
+        hosted = self.make('Hosted', creator=self.ben)
+        self.join(one, self.ben)
+        self.join(two, self.ben, self.ana)
+        self.join(many, self.ben, self.ana, self.cy, self.dee)
+        self.join(hosted, self.ana)
+        labels = self.card_labels()
+        self.assertEqual(labels['One'], 'ben is going')
+        self.assertEqual(labels['Two'], 'ben and ana are going')
+        self.assertEqual(labels['Many'], 'ben, ana +2 more are going')
+        self.assertEqual(labels['Hosted'], 'ben is hosting \u00b7 ana is going')
+
+    def test_non_friends_and_pending_requests_are_not_shown(self):
+        a = self.make('A')
+        pending = User.objects.create_user(username='pending', password='pw-123456')
+        services.send_request(self.me, pending)
+        self.join(a, self.stranger, pending)
+        self.assertEqual(self.card_labels()['A'], '')
+
+    def test_works_both_ways(self):
+        a = self.make('A')
+        self.join(a, self.me)
+        self.client.force_login(self.ben)
+        self.assertEqual(self.card_labels()['A'], 'me is going')
+
+    def test_detail_page_marks_friends(self):
+        a = self.make('A', creator=self.ana)
+        self.join(a, self.ben, self.stranger)
+        page = self.client.get(reverse('activity_detail', args=[a.pk]))
+        self.assertContains(page, 'Host \u00b7 Friend')
+        self.assertContains(page, 'companion-badge friend', count=1)
