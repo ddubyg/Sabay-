@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Post Sabay | Sabay?</title>
+    <title>{% if editing %}Edit Activity{% else %}Post Sabay{% endif %} | Sabay?</title>
 
     <script>
         (function() {
@@ -348,8 +348,13 @@
     <div class="create-card">
 
         <div class="create-card-header">
-            <h1>+ Post a New Sabay Activity</h1>
-            <p>Tell other students what you're up to and find companions to join you.</p>
+            {% if editing %}
+                <h1>✏️ Edit Your Activity</h1>
+                <p>Update the details. Everyone who joined will see the changes.</p>
+            {% else %}
+                <h1>+ Post a New Sabay Activity</h1>
+                <p>Tell other students what you're up to and find companions to join you.</p>
+            {% endif %}
         </div>
 
         <div class="create-card-body">
@@ -358,7 +363,7 @@
                 <div class="error-banner">{{ error }}</div>
             {% endif %}
 
-            <form method="POST" action="{% url 'create_activity' %}">
+            <form method="POST" action="{% if editing %}{% url 'edit_activity' activity.id %}{% else %}{% url 'create_activity' %}{% endif %}">
 
                 {% csrf_token %}
 
@@ -463,8 +468,13 @@
 
                 <!-- ACTIONS -->
                 <div class="form-actions">
-                    <a href="{% url 'home' %}" class="btn-cancel">Cancel</a>
-                    <button type="submit" class="btn-post">🚀 Post Activity</button>
+                    {% if editing %}
+                        <a href="{% url 'activity_detail' activity.id %}" class="btn-cancel">Cancel</a>
+                        <button type="submit" class="btn-post">💾 Save Changes</button>
+                    {% else %}
+                        <a href="{% url 'home' %}" class="btn-cancel">Cancel</a>
+                        <button type="submit" class="btn-post">🚀 Post Activity</button>
+                    {% endif %}
                 </div>
 
             </form>

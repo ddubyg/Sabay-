@@ -78,13 +78,9 @@
 
 <main class="home-container">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div style="margin-bottom: 24px; padding: 14px 18px; border-radius: 12px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); color: #10b981; font-size: 13px; font-weight: 600;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
+    {% for message in messages %}
+        <div class="flash {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
 
 
     <!-- HERO -->
@@ -236,6 +232,20 @@
                             {{ activity.title }}
                         </h3>
 
+                        <div class="activity-host">
+                            {% if activity.creator %}
+                                <span class="activity-host-avatar">{{ activity.creator.username|first|upper }}</span>
+                                {% if activity.creator == request.user %}
+                                    <span><strong>You</strong> are hosting</span>
+                                {% else %}
+                                    <span>Hosted by <strong>{{ activity.creator.username }}</strong></span>
+                                {% endif %}
+                            {% else %}
+                                <span class="activity-host-avatar">S</span>
+                                <span>Posted by <strong>Sabay</strong></span>
+                            {% endif %}
+                        </div>
+
                         <p class="activity-desc">
                             {{ activity.description }}
                         </p>
@@ -254,9 +264,19 @@
 
                     </div>
 
-                    <a href="{% url 'activity_detail' activity.id %}" class="activity-button join-card-btn">
-                        View & Join
-                    </a>
+                    {% if activity.creator == request.user %}
+                        <a href="{% url 'activity_detail' activity.id %}" class="activity-button join-card-btn is-host">
+                            Manage your post
+                        </a>
+                    {% elif activity.id in joined_ids %}
+                        <a href="{% url 'activity_detail' activity.id %}" class="activity-button join-card-btn is-joined">
+                            ✓ You're going
+                        </a>
+                    {% else %}
+                        <a href="{% url 'activity_detail' activity.id %}" class="activity-button join-card-btn">
+                            View & Join
+                        </a>
+                    {% endif %}
 
                 </div>
 

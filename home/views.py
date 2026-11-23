@@ -56,14 +56,19 @@ def get_or_seed_activities():
         for item in initial_activities:
             Activity.objects.create(**item)
 
-    return Activity.objects.annotate(participant_total=Count('participations'))
+    # Meta.ordering is ignored on GROUP BY queries, so order explicitly.
+    return Activity.objects.annotate(participant_total=Count('participations')).order_by('-created_at')
 
 
 @login_required
 def home_view(request):
-    activities = get_or_seed_activities()
+    activities = get_or_seed_activities().select_related('creator')
+    joined_ids = set(
+        Participation.objects.filter(user=request.user).values_list('activity_id', flat=True)
+    )
     return render(request, 'home/home.html', {
-        'activities': activities
+        'activities': activities,
+        'joined_ids': joined_ids,
     })
 
 
@@ -124,35 +129,82 @@ def leave_activity_view(request, pk):
     return redirect('activity_detail', pk=pk)
 
 
+def _read_activity_form(request):
+    """Pull and validate the activity fields. Returns (data, error)."""
+    data = {
+        'title': request.POST.get('title', '').strip(),
+        'category': request.POST.get('category', 'study').strip().lower(),
+        'location': request.POST.get('location', '').strip(),
+        'time': request.POST.get('time', '').strip(),
+        'description': request.POST.get('description', '').strip(),
+    }
+    if not data['title'] or not data['location'] or not data['time']:
+        return data, 'Please fill in all required fields.'
+    if data['category'] not in CATEGORY_EMOJIS:
+        return data, 'Please pick one of the listed categories.'
+    return data, None
+
+
 @login_required
 def create_activity_view(request):
     if request.method == 'POST':
-        title = request.POST.get('title', '').strip()
-        category = request.POST.get('category', 'study').strip()
-        location = request.POST.get('location', '').strip()
-        time = request.POST.get('time', '').strip()
-        description = request.POST.get('description', '').strip()
+        data, error = _read_activity_form(request)
+        if error:
+            return render(request, 'home/create_activity.html', {'error': error, **data})
 
-        if not title or not location or not time:
-            return render(request, 'home/create_activity.html', {
-                'error': 'Please fill in all required fields.',
-                'title': title,
-                'category': category,
-                'location': location,
-                'time': time,
-                'description': description,
-            })
-
-        Activity.objects.create(
-            title=title,
-            category=category,
-            location=location,
-            time=time,
-            description=description,
-            creator=request.user,
-        )
-
+        Activity.objects.create(creator=request.user, **data)
         messages.success(request, 'New Sabay activity posted successfully!')
         return redirect('home')
 
     return render(request, 'home/create_activity.html')
+
+
+def _get_own_activity(request, pk):
+    """The activity, or None (with an error message) if the user isn't its host."""
+    activity = get_object_or_404(Activity, pk=pk)
+    if not activity.is_host(request.user):
+        messages.error(request, 'Only the host can change this activity.')
+        return None
+    return activity
+
+
+@login_required
+def edit_activity_view(request, pk):
+    activity = _get_own_activity(request, pk)
+    if activity is None:
+        return redirect('activity_detail', pk=pk)
+
+    context = {'editing': True, 'activity': activity}
+
+    if request.method == 'POST':
+        data, error = _read_activity_form(request)
+        if error:
+            return render(request, 'home/create_activity.html', {**context, 'error': error, **data})
+
+        for field, value in data.items():
+            setattr(activity, field, value)
+        activity.save()
+        messages.success(request, 'Activity updated.')
+        return redirect('activity_detail', pk=pk)
+
+    return render(request, 'home/create_activity.html', {
+        **context,
+        'title': activity.title,
+        'category': activity.category,
+        'location': activity.location,
+        'time': activity.time,
+        'description': activity.description,
+    })
+
+
+@login_required
+@require_POST
+def delete_activity_view(request, pk):
+    activity = _get_own_activity(request, pk)
+    if activity is None:
+        return redirect('activity_detail', pk=pk)
+
+    title = activity.title
+    activity.delete()
+    messages.success(request, f'"{title}" was deleted.')
+    return redirect('home')

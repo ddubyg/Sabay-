@@ -306,18 +306,43 @@
             background: rgba(239, 68, 68, 0.08);
         }
 
-        .hosting-pill {
-            padding: 12px 20px;
+        .detail-host {
+            font-size: 13px;
+            opacity: 0.85;
+            margin: -4px 0 12px;
+        }
+
+        .host-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 24px;
+            height: 50px;
             border-radius: 14px;
-            background: rgba(108, 92, 231, 0.1);
-            color: var(--primary-dark);
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: white;
             font-size: 14px;
             font-weight: 700;
+            text-decoration: none;
         }
 
         @media (max-width: 600px) {
             .leave-btn {
                 width: 100%;
+            }
+
+            .host-actions,
+            .host-actions form {
+                flex: 1;
+            }
+
+            .edit-btn {
+                justify-content: center;
+                flex: 1;
             }
 
             .info-grid {
@@ -401,13 +426,9 @@
 
 <main class="detail-container">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div style="margin-bottom: 20px; padding: 14px 18px; border-radius: 12px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); color: #10b981; font-size: 13px; font-weight: 600;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
+    {% for message in messages %}
+        <div class="flash {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
 
 
     <a href="{% url 'home' %}" class="back-btn">
@@ -429,6 +450,14 @@
             </div>
 
             <div class="detail-title">{{ activity.title }}</div>
+
+            <div class="detail-host">
+                {% if activity.creator %}
+                    Hosted by <strong>{% if is_host %}you{% else %}{{ activity.creator.username }}{% endif %}</strong>
+                {% else %}
+                    Posted by <strong>Sabay</strong>
+                {% endif %}
+            </div>
 
             <div class="detail-meta-row">
                 <span class="detail-meta-item">
@@ -531,7 +560,14 @@
                 <div class="join-info">
                     You're hosting this. <strong>{{ participations|length }}</strong> {{ participations|length|pluralize:"person has,people have" }} joined so far.
                 </div>
-                <span class="hosting-pill">★ You're the host</span>
+                <div class="host-actions">
+                    <a href="{% url 'edit_activity' activity.id %}" class="edit-btn">✏️ Edit</a>
+                    <form method="POST" action="{% url 'delete_activity' activity.id %}"
+                          onsubmit="return confirm('Delete this activity? Everyone who joined will lose it too.');">
+                        {% csrf_token %}
+                        <button type="submit" class="leave-btn">Delete</button>
+                    </form>
+                </div>
             {% elif has_joined %}
                 <div class="join-info">
                     <strong>You're going!</strong> Plans changed? You can leave anytime.
